@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -241,6 +242,20 @@ export class SalesService {
       const customer = await tx.user.findUnique({ where: { id: customerId } });
       if (!customer || customer.role !== UserRole.CUSTOMER)
         throw new NotFoundException("Cliente não encontrado.");
+      if (tradeIn?.id === vehicle.id)
+        throw new BadRequestException("O veículo vendido não pode ser usado como veículo de troca.");
+      if (tradeIn) {
+        const endedOwnership = await tx.vehicleOwnership.updateMany({
+          where: {
+            vehicleId: tradeIn.id,
+            userId: customer.id,
+            status: OwnershipStatus.ACTIVE,
+          },
+          data: { status: OwnershipStatus.ENDED, endedAt: soldAt },
+        });
+        if (endedOwnership.count !== 1)
+          throw new ForbiddenException("O veículo da troca precisa estar vinculado ao cliente desta venda.");
+      }
       this.assertCompanyReadyForPurchase(customer);
       if (customer.passwordSetupRequired) {
         const token = randomBytes(32).toString("hex");
@@ -297,10 +312,6 @@ export class SalesService {
 
       // O usado da troca entra no estoque carregando o próprio histórico.
       if (tradeIn) {
-        await tx.vehicleOwnership.updateMany({
-          where: { vehicleId: tradeIn.id, status: OwnershipStatus.ACTIVE },
-          data: { status: OwnershipStatus.ENDED, endedAt: soldAt },
-        });
         await tx.vehicle.update({
           where: { id: tradeIn.id },
           data: {
@@ -314,10 +325,19 @@ export class SalesService {
       }
 
       if (input.repurchaseLeadId) {
-        const lead = await tx.repurchaseLead.findUnique({
-          where: { id: input.repurchaseLeadId },
-        });
-        if (lead && lead.status !== RepurchaseLeadStatus.WON) {
+        const lead = tradeIn
+          ? await tx.repurchaseLead.findFirst({
+              where: {
+                id: input.repurchaseLeadId,
+                vehicleId: tradeIn.id,
+                ownerId: customer.id,
+                ...(actor.role === UserRole.FORD_ADMIN ? {} : { dealershipId }),
+              },
+            })
+          : null;
+        if (!lead)
+          throw new NotFoundException("O lead de recompra não corresponde ao cliente, ao veículo da troca e à concessionária.");
+        if (lead.status !== RepurchaseLeadStatus.WON) {
           await tx.repurchaseLead.update({
             where: { id: lead.id },
             data: { status: RepurchaseLeadStatus.WON, closedAt: soldAt },

@@ -20,6 +20,13 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
+*.sql
+!apps/api/prisma/migrations/**/*.sql
+*.sql.gz
+*.dump
+*.dump.gz
+*.backup
+*.bak
 backups/
 .local/
 .pnpm-store/
@@ -81,8 +88,19 @@ apps/web/public/ranger-hero-grabcut.png
 *.key
 *.p12
 *.pfx
+*.jks
+*.keystore
+*.mobileprovision
 *.apk
 *.aab
 *.ipa
-backups/
-.local/
+
+# Local package-manager credentials.
+.netrc
+.pypirc
+.npmrc.local
+
+# Local test and browser automation output.
+playwright-report/
+test-results/
+apps/mobile/.expo-shared/

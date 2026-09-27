@@ -3,7 +3,22 @@ import * as SecureStore from 'expo-secure-store';
 
 const web = Platform.OS === 'web';
 const host = web ? globalThis.location.hostname : Platform.OS === 'android' ? '10.0.2.2' : '127.0.0.1';
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${host}:3000/api/v1`;
+const configuredApiUrl = process.env.EXPO_PUBLIC_API_URL;
+const requiresSecureApi = process.env.EXPO_PUBLIC_REQUIRE_TLS === 'true';
+const API_URL = configuredApiUrl ?? (requiresSecureApi ? '' : `http://${host}:3000/api/v1`);
+const apiConfigurationError = (() => {
+  if (!requiresSecureApi) return null;
+  if (!configuredApiUrl) return 'Configure EXPO_PUBLIC_API_URL com o endereço HTTPS da API antes de publicar o app.';
+  let parsed: URL;
+  try {
+    parsed = new URL(configuredApiUrl);
+  } catch {
+    return 'O endereço da API de produção precisa ser uma URL HTTPS válida.';
+  }
+  return parsed.protocol === 'https:'
+    ? null
+    : 'A API de produção deve usar HTTPS para proteger credenciais e tokens.';
+})();
 const KEY = 'ford360_session';
 export type SessionUser = { fullName: string; email: string; role?: string };
 type Session = { accessToken: string; refreshToken?: string; user: SessionUser };
@@ -35,6 +50,7 @@ async function remember(session: Session | null) {
 }
 
 async function send(path: string, options: RequestInit = {}, token?: string) {
+  if (apiConfigurationError) throw new Error(apiConfigurationError);
   const controller = new AbortController();
   const cancel = () => controller.abort();
   const timer = setTimeout(cancel, 20000);

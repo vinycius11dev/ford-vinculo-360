@@ -157,7 +157,17 @@ export class RepurchaseLeadsService {
       const recipients = await tx.user.findMany({
         where: {
           active: true,
-          role: { in: REPURCHASE_STAFF_ROLES },
+          OR: [
+            { role: UserRole.FORD_ADMIN },
+            {
+              role: {
+                in: REPURCHASE_STAFF_ROLES.filter(
+                  (role) => role !== UserRole.FORD_ADMIN,
+                ),
+              },
+              dealershipId,
+            },
+          ],
         },
         select: { id: true },
       });
@@ -195,8 +205,11 @@ export class RepurchaseLeadsService {
     });
   }
 
-  list(_actor: AuthenticatedUser) {
+  list(actor: AuthenticatedUser) {
     return this.prisma.repurchaseLead.findMany({
+      where: actor.role === UserRole.FORD_ADMIN
+        ? {}
+        : { dealershipId: actor.dealershipId ?? "__none__" },
       include: leadInclude,
       orderBy: { updatedAt: "desc" },
       take: 200,
@@ -294,7 +307,12 @@ export class RepurchaseLeadsService {
     actor: AuthenticatedUser,
   ) {
     const current = await this.prisma.repurchaseLead.findFirst({
-      where: { id },
+      where: {
+        id,
+        ...(actor.role === UserRole.FORD_ADMIN
+          ? {}
+          : { dealershipId: actor.dealershipId ?? "__none__" }),
+      },
     });
     if (!current) throw new NotFoundException("Lead não encontrado.");
     if (input.status === undefined && input.notes === undefined)

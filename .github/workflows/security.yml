@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Build, mobile tests, and full Node dependency audit
+    name: Build, API/mobile security tests, and full Node dependency audit
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -35,6 +35,12 @@ jobs:
         run: pnpm check
       - name: Run mobile session and contract tests
         run: pnpm test:mobile
+      - name: Run API authorization security tests
+        run: pnpm --filter @ford/api test:security
+      - name: Run mobile transport security tests
+        run: pnpm --filter @ford/mobile test:transport-security
+      - name: Test encrypted backup stream with synthetic data
+        run: node scripts/secure-backup.cjs self-test
       - name: Audit all Node dependencies
         run: pnpm audit --audit-level high
 

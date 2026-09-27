@@ -4,6 +4,7 @@ import { AuthenticatedUser } from '../auth/auth.types';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateServiceOrderDto } from './dto/create-service-order.dto';
 import { UpdateServiceOrderDto } from './dto/update-service-order.dto';
+import { vehicleScope } from '../common/access-scope';
 
 @Injectable()
 export class ServiceOrdersService {
@@ -21,7 +22,9 @@ export class ServiceOrdersService {
   }
 
   async create(input: CreateServiceOrderDto, actor: AuthenticatedUser) {
-    const vehicle = await this.prisma.vehicle.findUnique({ where: { vin: input.vin.toUpperCase() } });
+    const vehicle = await this.prisma.vehicle.findFirst({
+      where: { vin: input.vin.toUpperCase(), ...vehicleScope(actor) },
+    });
     if (!vehicle) throw new NotFoundException('Veículo não encontrado.');
     const dealershipId = actor.role === UserRole.FORD_ADMIN ? input.dealershipId : actor.dealershipId;
     if (!dealershipId) throw new BadRequestException('Informe uma concessionária.');
@@ -31,6 +34,8 @@ export class ServiceOrdersService {
   }
 
   async update(id: string, input: UpdateServiceOrderDto, actor: AuthenticatedUser) {
+    if (input.points !== undefined && actor.role === UserRole.DEALERSHIP_AGENT)
+      throw new ForbiddenException('Somente a gestão pode ajustar a pontuação de uma ordem de serviço.');
     const order = await this.prisma.serviceOrder.findUnique({ where: { id }, include: { vehicle: { include: { ownerships: { where: { status: 'ACTIVE' }, take: 1 } } } } });
     if (!order) throw new NotFoundException('Ordem de serviço não encontrada.');
     if (actor.role !== UserRole.FORD_ADMIN && order.dealershipId !== actor.dealershipId) throw new ForbiddenException('Ordem fora da sua concessionária.');

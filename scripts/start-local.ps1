@@ -1,4 +1,7 @@
-param([switch]$OpenBrowser)
+param(
+  [switch]$OpenBrowser,
+  [switch]$ExposeDevelopmentTokens
+)
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
@@ -40,7 +43,10 @@ if ($isMysqlRunning -or (Get-Service -Name wampmysqld64 -ErrorAction SilentlyCon
   $previousDevelopmentTokens = $env:EXPOSE_DEVELOPMENT_TOKENS
   try {
     $env:NODE_ENV = 'development'
-    $env:EXPOSE_DEVELOPMENT_TOKENS = 'true'
+    $env:EXPOSE_DEVELOPMENT_TOKENS = if ($ExposeDevelopmentTokens) { 'true' } else { 'false' }
+    if ($ExposeDevelopmentTokens) {
+      Write-Warning 'Tokens de convite/recuperação poderão aparecer nas respostas locais. Use apenas em desenvolvimento e sem SMTP configurado.'
+    }
     Start-LocalApp 'api' 3000 $nodeExecutable @('dist/main.js') (Join-Path $projectRoot 'apps/api')
   } finally {
     if ($null -eq $previousNodeEnv) { Remove-Item Env:NODE_ENV -ErrorAction SilentlyContinue }

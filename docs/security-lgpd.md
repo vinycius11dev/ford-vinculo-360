@@ -42,3 +42,11 @@ pendentes para uma implantação real.
   `EXPOSE_DEVELOPMENT_TOKENS=true` e sem SMTP configurado. Antes de produção,
   sanear registros históricos e backups que possam ter sido gravados pelo fluxo
   anterior, conforme o [relatório de cibersegurança](sprint-3-cybersecurity.md).
+
+- As novas rotinas locais fazem backup AES-256-GCM em streaming, restauram em
+  banco descartável com autenticação do arquivo antes da importação e incluem
+  saneamento histórico restrito aos templates que carregam links de credencial.
+  O saneamento permanece em dry-run por padrão; nenhuma alteração foi aplicada
+  ao banco local. O guia de [operação segura](operations-security.md) lista os
+  pré-requisitos, a prova de restauração exigida e as limitações dos dumps
+  históricos em claro.

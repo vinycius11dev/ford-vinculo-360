@@ -20,6 +20,9 @@
     "production": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_REQUIRE_TLS": "true"
       }
     }
   },
