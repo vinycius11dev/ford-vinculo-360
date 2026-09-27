@@ -1,0 +1,57 @@
+name: Mobile demo APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-apk-demo-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-apk:
+    name: Build Android demo APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      EXPO_PUBLIC_API_URL: http://10.0.2.2:3000/api/v1
+      EXPO_PUBLIC_REQUIRE_TLS: "false"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+
+      - name: Set up Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install pnpm
+        run: npm install --global pnpm@10.34.5
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Android project and debug APK
+        working-directory: apps/mobile
+        run: |
+          pnpm exec expo prebuild --platform android --no-install
+          cd android
+          ./gradlew --no-daemon :app:assembleDebug
+          mkdir -p "$GITHUB_WORKSPACE/output/apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/output/apk/Ford-Vinculo-360-demo.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ford-vinculo-360-demo-apk
+          path: output/apk/Ford-Vinculo-360-demo.apk
+          if-no-files-found: error
+          retention-days: 30
