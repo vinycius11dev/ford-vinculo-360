@@ -1,6 +1,6 @@
 fastapi>=0.118,<1
 uvicorn[standard]>=0.37,<1
-pydantic>=2.12,<3
+pydantic>=2.13.5,<3
 joblib>=1.5,<2
 numpy>=2.0,<3
 pandas>=2.2,<3
