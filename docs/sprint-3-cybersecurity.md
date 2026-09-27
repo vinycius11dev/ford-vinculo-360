@@ -8,11 +8,11 @@
 
 O projeto tem controles de autenticação, sessão, autorização, validação, auditoria, proteção de API e uma automação DevSecOps configurada. Nesta revisão corrigi um risco alto: links de convite, ativação e redefinição de senha podiam ser gravados na fila de e-mail e apresentados a administradores. Esses fluxos agora enviam o conteúdo sensível sem persistir link ou corpo, redigem a resposta da fila, bloqueiam reenvio e invalidam o token quando o envio falha. Logs de requisição agora registram também respostas de guards e throttling, sem corpo, query, cookie ou identificador pessoal.
 
-**Estado da entrega:** documentação, controles de aplicação e configuração de CI estão prontos para revisão acadêmica. **Ainda não está pronta para produção.** Permanecem evidências externas à aplicação: executar os scanners no CI, configurar branch protection e implantação, limpar conteúdo histórico sensível do banco/backups, ativar observabilidade, provar cifragem/restauração, revisar LGPD com o controlador e realizar avaliação independente.
+**Estado da entrega:** documentação, controles de aplicação e pipeline de segurança foram publicados e verificados no GitHub. A execução completa do CI passou em 27/09/2026 no commit `e443bfa` (build, typecheck, testes mobile, auditorias Node/Python, Semgrep e Gitleaks). **Ainda não está pronta para produção.** Permanecem pendências de ambiente e governança: branch protection indisponível no plano atual para este repositório privado, implantação, saneamento histórico, observabilidade, prova de cifragem/restauração, revisão LGPD pelo controlador e avaliação independente.
 
 | Frente | Estado | Evidência e limite |
 |---|---|---|
-| DevSecOps | CI configurado; execução GitHub pendente | Build, testes mobile, auditoria Node/Python, Semgrep e Gitleaks em `.github/workflows/security.yml`. Não há CD/deploy nem logs de execução deste repositório. |
+| DevSecOps | CI executado e aprovado | Execução [36345975178](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36345975178), commit `e443bfa`. Alertas de dependências e atualizações de segurança Dependabot ativos; não há CD/deploy. |
 | API e identidade | Controles implementados | JWT curto, refresh rotativo, hash de refresh/reset/convite, RBAC/escopo, limites, CORS, Helmet, validação de segredo/configuração e logs sem dados de conteúdo. |
 | Mensagens com credenciais | Corrigido para novos envios | Tokens não entram na fila nem em eventos; respostas administrativas são redigidas; falha invalida a credencial. Dados antigos ainda exigem saneamento controlado. |
 | Mobile | Proteção local implementada; publicação pendente | Refresh token em SecureStore; token de acesso em memória. Não há APK assinado, endpoint HTTPS de produção nem evidência em dispositivo. |
@@ -44,7 +44,7 @@ flowchart LR
   M --> F
 ```
 
-O workflow está definido para `push`, `pull_request`, execução manual e agenda semanal. Permissões do workflow limitadas a `contents: read`; actions fixadas por SHA. O merge condicionado a checks, o deploy, a verificação pós-deploy e rollback dependem de configuração no provedor GitHub/infraestrutura e não estão comprovados neste projeto.
+O workflow está definido para `push`, `pull_request`, execução manual e agenda semanal. Permissões do workflow limitadas a `contents: read`; actions fixadas por SHA. O repositório GitHub é privado, com alertas de vulnerabilidade e correções automáticas do Dependabot habilitados; as atualizações semanais têm cooldown de sete dias. As permissões padrão do `GITHUB_TOKEN` estão limitadas a leitura e o token não pode aprovar PRs. A conta atual não permite branch protection nesse repositório privado; o GitHub exige plano Pro ou repositório público. O repositório permanece privado. Não há CD/deploy, verificação pós-deploy nem rollback configurados.
 
 | Verificação | Configuração atual | O que comprova / limite |
 |---|---|---|
@@ -52,9 +52,9 @@ O workflow está definido para `push`, `pull_request`, execução manual e agend
 | Testes mobile | `pnpm test:mobile` no workflow | Testes de sessão/contrato; não substituem teste em aparelho ou testes de API. |
 | SCA Node | `pnpm audit --audit-level high` | Inclui dependências de produção e desenvolvimento; resultado varia com o advisory registry. |
 | SCA Python | `pip-audit -r apps/ml/requirements.txt` | Dependências declaradas; ainda falta lockfile Python para reprodutibilidade. |
-| SAST | Semgrep CLI com versão fixada, `semgrep scan --config auto --error --metrics=off` | Findings precisam de triagem; o job ainda deve ser executado no CI. |
+| SAST | Semgrep CLI 1.178.0, `semgrep scan --config p/default --error --metrics=off --oss-only` | Execução passou no CI de 27/09/2026, sem findings bloqueadores. |
 | Segredos | Gitleaks 8.30.1 com checksum SHA-256 e histórico completo | Encontrar chave implica revogar/rotacionar; apagar do último commit não basta. |
-| Dependabot | `.github/dependabot.yml` | Atualizações semanais configuradas; confirmar criação de PRs depois de publicar. |
+| Dependabot | `.github/dependabot.yml` | Alertas e correções automáticas ativos; atualizações semanais de GitHub Actions, npm e pip com cooldown de sete dias. |
 | IaC/container | Não configurado | Não há IaC/container neste escopo; adicionar scanner correspondente se esses artefatos forem introduzidos. |
 | Deploy e rollback | Não configurados | Escolher ambiente, artefato, aprovação, smoke test, estratégia de rollback e gestão de segredos. |
 
@@ -168,11 +168,12 @@ Não foi implementado broker/cliente MQTT nem encontrado manifesto de infra/cont
 | Evidência | Estado nesta revisão | Observação |
 |---|---|---|
 | Revisão de código | Feita | Inclui autenticação, fila de mensagens, middleware de logs, upload, configuração e workflow. |
-| Build/typecheck | `pnpm check` passou em 27/09/2026 | Build API/web e typecheck mobile; Vite ainda emite aviso de bundle JavaScript acima de 500 kB. Não envolve banco ou envio real de e-mail. |
-| SCA Node | `pnpm audit --audit-level high` passou em 27/09/2026 | Nenhuma vulnerabilidade conhecida no registro consultado naquele momento. |
-| SCA Python | Pendente nesta revisão | Job configurado, mas precisa de execução e triagem; falta lockfile. |
-| Semgrep/Gitleaks/GitHub Actions | Pendente | Workflow versionado; precisa rodar no repositório publicado e anexar SHA, data e saída. |
-| Testes mobile | 13/13 registrados na revisão anterior; não repetidos aqui | Testam contratos/sessão; não equivalem a QA em dispositivo. |
+| Build/typecheck | Passou no CI em 27/09/2026 | Build API/web e typecheck mobile; Vite ainda emite aviso de bundle JavaScript acima de 500 kB. Não envolve banco ou envio real de e-mail. |
+| SCA Node | `pnpm audit --audit-level high` passou no CI em 27/09/2026 | Nenhuma vulnerabilidade de severidade alta ou crítica conhecida no registro consultado nessa execução. |
+| SCA Python | `pip-audit -r apps/ml/requirements.txt` passou no CI em 27/09/2026 | Sem vulnerabilidades conhecidas nas dependências declaradas; ainda falta lockfile para reprodutibilidade. |
+| Semgrep | Passou no CI em 27/09/2026 | 507 regras em 256 arquivos; sem findings bloqueadores após endurecer as políticas de dependências. |
+| Gitleaks | Passou no CI em 27/09/2026 | Varredura de código e histórico completo, sem segredos detectados. |
+| Testes mobile | Passaram no CI em 27/09/2026 | Testes de contrato/sessão; não equivalem a QA em aparelho. |
 | Integração com DB/SMTP | Não executada | Ambiente local tem serviços ativos; não alterei banco nem disparei e-mails nesta revisão. |
 | Dashboard/prints/pentest | Não disponíveis | Precisam ser gerados em homologação real, sem dados pessoais. |
 
@@ -184,12 +185,12 @@ Não foi implementado broker/cliente MQTT nem encontrado manifesto de infra/cont
 - [x] Mapear STRIDE, referências OWASP, LGPD, monitoramento, incidentes e baseline IoT.
 - [x] Executar auditoria completa das dependências Node; sem vulnerabilidades conhecidas no momento consultado.
 - [x] Confirmar build/typecheck após esta revisão; registrar aviso do bundle web para otimização futura.
-- [ ] Executar CI completo, pip-audit, Semgrep e Gitleaks no repositório remoto; resolver achados.
-- [ ] Configurar proteção de branch, release/deploy, smoke test e rollback.
+- [x] Publicar o repositório privado e executar CI completo; build, testes, SCA, Semgrep e Gitleaks aprovados no commit `e443bfa`.
+- [ ] Ativar branch protection — indisponível no plano atual para repositório privado; avaliar upgrade para GitHub Pro. Configurar também release/deploy, smoke test e rollback.
 - [ ] Saneamento controlado dos registros/backups antigos com links de credencial antes de produção.
 - [ ] Cifrar banco/volume e backups, limitar acesso e provar restore.
 - [ ] Configurar coletor/dashboard/alertas e anexar prints/logs reais sanitizados.
 - [ ] Validar API e app mobile em homologação/aparelho com HTTPS e testes BOLA/BFLA.
 - [ ] Obter aprovação do controlador/encarregado/jurídico e avaliação independente antes de produção.
 
-**Conclusão:** a entrega de documentação e os controles de aplicação estão preparados e revisados. A rubrica de segurança tem evidência de código e configuração, mas a cadeia de CI/deploy ainda não foi executada ponta a ponta. A pendência de maior prioridade antes de produção é limpar credenciais históricas da fila/backups, depois provar cifragem/restauração, observabilidade e revisão formal.
+**Conclusão:** a entrega de documentação, controles de aplicação, políticas de dependências e pipeline CI está publicada; o CI completo passou no GitHub no commit `e443bfa`. Isso comprova build, testes e scanners nesse commit, mas não certifica produção. Antes de produção, a prioridade é sanear registros/backups históricos com links de credencial; depois comprovar cifragem/restauração, observabilidade, implantação segura e revisão formal. A proteção de `main` requer plano GitHub compatível enquanto o repositório permanecer privado.
