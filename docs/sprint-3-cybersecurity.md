@@ -107,7 +107,7 @@ O planejamento está alinhado como referência com [OWASP ASVS 5.0.0](https://ow
 | API Security Top 10 | Planejado para BOLA/BFLA, autenticação, consumo de recursos, configuração e APIs externas | Guards, limites, CORS, validação; planos de testes | Executar testes negativos, limites distribuídos e revisão de endpoints. |
 | Mobile Top 10 | SecureStore, access token em memória, TLS como requisito | Código mobile existente e checklist | Build assinado, revisão de deep links, proxy/TLS e evidência em dispositivo. |
 | LGPD | Minimização/escopo, auditoria e fluxos de privacidade previstos | `docs/security-lgpd.md`, módulos de privacidade e este relatório | Controlador/encarregado: finalidade/base legal, retenção, contratos, direitos e RIPD quando aplicável. |
-| DevSecOps | CI descrito/configurado; SCA/SAST/segredos | `.github/workflows/security.yml` | Rodar pipeline, proteger branch, triagem de findings e aprovar release. |
+| DevSecOps | CI completo passou; alertas de vulnerabilidade e Dependabot ativos | `.github/workflows/security.yml`, `.github/dependabot.yml`, execução GitHub [36346101380](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36346101380) | Branch protection requer plano GitHub compatível para este repositório privado; configurar release/deploy e revisar achados futuros. |
 
 ## Logs estruturados e plano de monitoramento
 
