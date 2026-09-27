@@ -8,11 +8,11 @@
 
 O projeto tem controles de autenticação, sessão, autorização, validação, auditoria, proteção de API e automação DevSecOps. Esta revisão também corrige falhas de autorização entre concessionárias: ordens de serviço consultam o escopo do veículo, leads são listados e alterados apenas pela unidade autorizada, e uma troca só encerra a titularidade ativa do cliente da venda. Agentes não podem emitir pontos manualmente. No mobile, o perfil de produção exige endpoint HTTPS explícito e bloqueia o envio de credenciais se a configuração estiver ausente ou insegura. Links sensíveis de convite/reset também não são persistidos na fila de e-mail, e os logs HTTP não incluem payload, query, cookie ou identificadores pessoais.
 
-**Estado da entrega:** o código, a documentação e a pipeline estão preparados para publicação e execução final de CI. A execução verde anterior em e443bfa não inclui estas correções; o resultado do CI correspondente às alterações publicadas será registrado abaixo. **Ainda não está pronta para produção.** Permanecem pendências operacionais: branch protection e canal privado de divulgação indisponíveis no plano atual para este repositório privado, deploy, saneamento histórico autorizado, cofre/destino externo de backup, dashboard/alertas, revisão LGPD pelo controlador e avaliação independente.
+**Estado da entrega:** alterações publicadas em `main`; o CI completo passou em 27/09/2026 na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276), commit `e326b7b`. Passaram build/typecheck, testes API/mobile, SCA Node/Python, Semgrep, Gitleaks e self-test criptográfico com fixture sintética. **Ainda não está pronta para produção.** Permanecem pendências operacionais: branch protection e canal privado de divulgação indisponíveis no plano atual para este repositório privado, deploy, saneamento histórico autorizado, cofre/destino externo de backup, dashboard/alertas, revisão LGPD pelo controlador e avaliação independente.
 
 | Frente | Estado | Evidência e limite |
 |---|---|---|
-| DevSecOps | Pipeline configurada; CI final desta revisão pendente | A execução anterior 36345975178 não inclui estas correções. Alertas de vulnerabilidade e Dependabot ativos; não há CD/deploy. |
+| DevSecOps | CI completo aprovado | Execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276), commit `e326b7b`. Alertas de vulnerabilidade e Dependabot ativos; não há CD/deploy. |
 | API e identidade | Controles implementados | JWT curto, refresh rotativo, hash de refresh/reset/convite, RBAC/escopo, limites, CORS, Helmet, validação de segredo/configuração e logs sem dados de conteúdo. |
 | Mensagens com credenciais | Corrigido para novos envios | Tokens não entram na fila nem em eventos; respostas administrativas são redigidas; falha invalida a credencial. Dados antigos ainda exigem saneamento controlado. |
 | Mobile | Controles implementados; publicação pendente | Refresh token em SecureStore e token de acesso em memória. O perfil EAS de produção exige EXPO_PUBLIC_API_URL HTTPS e recusa requests sem isso; falta cadastrar o endpoint real e validar em dispositivo. |
@@ -26,7 +26,7 @@ O projeto tem controles de autenticação, sessão, autorização, validação, 
 
 | Atividade e peso | Evidências desta entrega | Estado e itens operacionais pendentes |
 |---|---|---|
-| 1. Pipeline DevSecOps Integrado (3,0) | Workflow com build/typecheck, testes, SCA Node/Python, Semgrep e Gitleaks; execução publicada no GitHub Actions. | CI e scanners estão entregues. Proteção obrigatória da branch e deploy/rollback dependem de plano e ambiente compatíveis. |
+| 1. Pipeline DevSecOps Integrado (3,0) | Workflow com build/typecheck, testes de segurança, SCA Node/Python, Semgrep e Gitleaks; execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276). | CI e scanners estão entregues. Proteção obrigatória da branch e deploy/rollback dependem de plano e ambiente compatíveis. |
 | 2. Segurança em Código e Infraestrutura (2,5) | Autenticação e escopo API, correções de autorização, armazenamento seguro e política HTTPS mobile, criptografia local de backup, exemplos técnicos e testes. | Não existe integração MQTT/IaC no projeto. O endpoint HTTPS real do EAS, saneamento histórico e ensaio operacional continuam dependentes do responsável pelo ambiente. |
 | 3. Observabilidade, Monitoramento e Resposta (2,0) | Logs JSON sem payload/segredos, indicadores e limites propostos, painel a configurar e fluxo documentado de resposta a incidentes. | Não há coletor, dashboard, alertas calibrados nem simulado de incidente em ambiente real; não apresentamos telas ou logs sintéticos como evidência de produção. |
 | 4. Compliance, Riscos e Segurança Contínua (2,5) | STRIDE, referências OWASP, checklist LGPD, análise de riscos, workflow semanal, procedimento seguro de backup e saneamento. | Conformidade formal, bases legais/retenção, aprovação do controlador, revisão independente e comprovantes operacionais precisam ser fornecidos pela organização. |
@@ -67,10 +67,10 @@ O workflow está definido para `push`, `pull_request`, execução manual e agend
 |---|---|---|
 | Build e tipos | `pnpm check` | Build API/web e typecheck mobile; não é teste dinâmico de segurança. |
 | Testes API/mobile/backup | Testes de autorização API, transporte TLS mobile, contratos/sessão e self-test AES-GCM com fixture sintética | Não usam banco real; não substituem testes em aparelho nem a matriz BOLA/BFLA integral. |
-| SCA Node | `pnpm audit --audit-level high` | Inclui dependências de produção e desenvolvimento; resultado varia com o advisory registry. |
-| SCA Python | `pip-audit -r apps/ml/requirements.txt` | Dependências declaradas; ainda falta lockfile Python para reprodutibilidade. |
-| SAST | Semgrep CLI 1.178.0, `semgrep scan --config p/default --error --metrics=off --oss-only` | Execução passou no CI de 27/09/2026, sem findings bloqueadores. |
-| Segredos | Gitleaks 8.30.1 com checksum SHA-256 e histórico completo | Encontrar chave implica revogar/rotacionar; apagar do último commit não basta. |
+| SCA Node | `pnpm audit --audit-level high` | Passou na execução final [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276); inclui dependências de produção e desenvolvimento e varia com o advisory registry. |
+| SCA Python | `pip-audit -r apps/ml/requirements.txt` | Passou na execução final; audita dependências declaradas. Ainda falta lockfile Python para reprodutibilidade. |
+| SAST | Semgrep CLI 1.178.0, `semgrep scan --config p/default --error --metrics=off --oss-only` | Passou na execução final, sem findings bloqueadores. |
+| Segredos | Gitleaks 8.30.1 com checksum SHA-256 e histórico completo | Passou na execução final. Uma exceção exata documenta o texto público dos parâmetros scrypt no manifesto; não é credencial. |
 | Dependabot | `.github/dependabot.yml` | Alertas e correções automáticas ativos; atualizações semanais de GitHub Actions, npm e pip com cooldown de sete dias. |
 | IaC/container | Não configurado | Não há IaC/container neste escopo; adicionar scanner correspondente se esses artefatos forem introduzidos. |
 | Deploy e rollback | Não configurados | Escolher ambiente, artefato, aprovação, smoke test, estratégia de rollback e gestão de segredos. |
@@ -125,7 +125,7 @@ Os trechos abaixo mostram as verificações centrais introduzidas nesta revisão
 
     const cipher = createCipheriv('aes-256-gcm', key, nonce, { authTagLength: TAG_LENGTH });
 
-Execução da pipeline, commit final e checks correspondentes serão registrados nesta seção depois do push. Os testes locais dos trechos API/mobile usam mocks; a revisão não acessou dados reais.
+Código publicado em `e326b7b`; a execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276) passou com os checks listados na Atividade 1. Os testes locais API/mobile usam mocks; a revisão não acessou dados reais.
 
 ### Registros históricos de mensagens com credenciais
 
@@ -200,7 +200,7 @@ O planejamento está alinhado como referência com [OWASP ASVS 5.0.0](https://ow
 | API Security Top 10 | Baseline para BOLA/BFLA, autenticação, consumo de recursos, configuração e APIs externas | Guards, limites, CORS, validação e testes negativos de escopo | Ampliar testes para todas as rotas e limites distribuídos. |
 | Mobile Top 10 | SecureStore, access token em memória e bloqueio de HTTP no perfil de produção | Código mobile, EAS e testes de transporte | Cadastrar URL HTTPS no EAS, gerar build assinado e revisar deep links/proxy em dispositivo. |
 | LGPD | Minimização/escopo, auditoria e fluxos de privacidade previstos | `docs/security-lgpd.md`, módulos de privacidade e este relatório | Controlador/encarregado: finalidade/base legal, retenção, contratos, direitos e RIPD quando aplicável. |
-| DevSecOps | Pipeline e Dependabot configurados | `.github/workflows/security.yml`, `.github/dependabot.yml`; execução final desta revisão será registrada após push | Branch protection requer plano GitHub compatível para este repositório privado; configurar release/deploy e revisar achados futuros. |
+| DevSecOps | CI completo passou | `.github/workflows/security.yml`, `.github/dependabot.yml`, execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276) | Branch protection requer plano GitHub compatível para este repositório privado; configurar release/deploy e revisar achados futuros. |
 
 ### LGPD, retenção e segurança de infraestrutura
 
@@ -215,11 +215,11 @@ Antes da operação, o controlador e o encarregado devem validar finalidade/base
 |---|---|---|
 | Revisão de código | Feita | Inclui autenticação, fila de mensagens, middleware de logs, upload, configuração e workflow. |
 | Build/typecheck | Passou no CI em 27/09/2026 | Build API/web e typecheck mobile; Vite ainda emite aviso de bundle JavaScript acima de 500 kB. Não envolve banco ou envio real de e-mail. |
-| SCA Node | `pnpm audit --audit-level high` passou no CI em 27/09/2026 | Nenhuma vulnerabilidade de severidade alta ou crítica conhecida no registro consultado nessa execução. |
-| SCA Python | `pip-audit -r apps/ml/requirements.txt` passou no CI em 27/09/2026 | Sem vulnerabilidades conhecidas nas dependências declaradas; ainda falta lockfile para reprodutibilidade. |
-| Semgrep | Passou no CI em 27/09/2026 | 507 regras em 256 arquivos; sem findings bloqueadores após endurecer as políticas de dependências. |
-| Gitleaks | Passou no CI em 27/09/2026 | Varredura de código e histórico completo, sem segredos detectados. |
-| Testes CI | Execução final após push | Pipeline inclui build/typecheck, auditorias, Semgrep, Gitleaks, testes API/mobile e fixture criptográfica; não equivale a QA em aparelho. |
+| SCA Node | `pnpm audit --audit-level high` passou no CI | Nenhuma vulnerabilidade de severidade alta ou crítica conhecida no registro consultado nessa execução. |
+| SCA Python | `pip-audit -r apps/ml/requirements.txt` passou no CI | Sem vulnerabilidades conhecidas nas dependências declaradas; ainda falta lockfile para reprodutibilidade. |
+| Semgrep | Passou no CI em 27/09/2026 | 507 regras em 256 arquivos; sem findings bloqueadores. |
+| Gitleaks | Passou no CI em 27/09/2026 | Varredura de histórico completo. O único finding era a descrição scrypt, liberada por fingerprint exato em `.gitleaksignore`. |
+| Testes CI | Todos passaram na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276) | Build/typecheck, testes API/mobile, auditorias, Semgrep, Gitleaks e fixture criptográfica; não equivale a QA em aparelho. |
 | Lint | Não executado nesta revisão | ESLint 9 local não encontra configuração eslint.config.*; lint não é check obrigatório na pipeline atual. |
 | Exceção Gitleaks | Um achado `generic-api-key` em e9065b9 foi verificado como texto público dos parâmetros scrypt, não credencial | O fingerprint exato está em .gitleaksignore; o manifesto registra os mesmos parâmetros em campos separados. |
 | DB/SMTP, backup/restore e saneamento | Não executados | Não conectei nem alterei banco, não gerei backup real, não enviei e-mails e não apliquei saneamento. |
@@ -228,20 +228,14 @@ Antes da operação, o controlador e o encarregado devem validar finalidade/base
 
 ### Checklist de encerramento
 
-- [x] Preparar workflow de build, testes API/mobile, SCA, SAST e detecção de segredos.
-- [x] Endurecer configuração HTTPS/CORS, segredo JWT, bind local, cookie, upload e logs HTTP.
-- [x] Impedir persistência/exposição de links de reset, convite e ativação em mensagens novas.
-- [x] Mapear STRIDE, referências OWASP, LGPD, monitoramento, incidentes e baseline IoT.
-- [x] Executar auditoria completa das dependências Node; sem vulnerabilidades conhecidas no momento consultado.
-- [x] Confirmar build/typecheck após esta revisão; registrar aviso do bundle web para otimização futura.
-- [ ] Publicar esta revisão e confirmar CI completo verde; registrar commit e execução antes da entrega final.
-- [ ] Ativar branch protection — indisponível no plano atual para repositório privado; avaliar upgrade para GitHub Pro. Configurar também release/deploy, smoke test e rollback.
-- [ ] Saneamento controlado dos registros/backups antigos com links de credencial antes de produção.
-- [x] Preparar backup local cifrado, restore isolado e saneador em dry-run por padrão.
-- [ ] Executar restore supervisionado e saneamento histórico somente com autorização, janela e backup verificado; tratar dumps antigos em claro.
-- [ ] Configurar cifragem de banco/volume, cofre/destino externo de backup e retenção.
-- [ ] Configurar coletor/dashboard/alertas e anexar prints/logs reais sanitizados.
-- [ ] Configurar EXPO_PUBLIC_API_URL HTTPS no EAS e validar o app em dispositivo; ampliar BOLA/BFLA em ambiente isolado.
-- [ ] Obter aprovação do controlador/encarregado/jurídico e avaliação independente antes de produção.
+- [x] Workflow DevSecOps, build/typecheck, testes API/mobile, SCA, SAST e detecção de segredos; CI completo verde na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276), commit `e326b7b`.
+- [x] Endurecimento de API, sessão, HTTPS/CORS, upload, logs, outbox de mensagens, autorização entre concessionárias e mobile.
+- [x] STRIDE, referências OWASP, checklist LGPD, plano de observabilidade/resposta e baseline futuro de IoT documentados.
+- [x] Backup local cifrado, restore isolado e saneador histórico em dry-run por padrão; sem conexão ou alteração de dados reais.
+- [ ] Configurar branch protection (requer plano compatível), release/deploy, smoke test e rollback.
+- [ ] Cadastrar URL HTTPS real no EAS, assinar o app e validar em dispositivo; ampliar testes BOLA/BFLA em ambiente isolado.
+- [ ] Agendar restore supervisionado e saneamento histórico autorizado; decidir o tratamento dos dumps antigos em claro.
+- [ ] Implantar cifragem do banco/volume, cofre e cópia externa de backup, retenção, coletor, dashboard e alertas; anexar evidências reais sanitizadas.
+- [ ] Obter validação do controlador/encarregado/jurídico e avaliação independente antes da produção.
 
-**Conclusão:** as correções de autorização API, transporte mobile, operação de backup cifrado, saneamento controlado e CI estão documentadas e testadas nos escopos locais descritos. A validação final do GitHub Actions desta revisão será vinculada após o push. A entrega não certifica produção: seguem pendentes URL HTTPS real do EAS, dashboard/alertas, saneamento autorizado e tratamento dos backups históricos em claro, restore supervisionado, cofre/cópia externa, deploy seguro, revisão formal LGPD e avaliação independente. A proteção de main e a divulgação privada de vulnerabilidades exigem um plano compatível enquanto o repositório permanecer privado.
+**Conclusão:** as correções de autorização API, transporte mobile, operação de backup cifrado, saneamento controlado e pipeline foram publicadas no commit `e326b7b`; o CI completo passou na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276). Isso valida build, testes e scanners nesta revisão, mas não certifica produção. Seguem pendentes URL HTTPS real do EAS, dashboard/alertas, saneamento autorizado e tratamento dos backups históricos em claro, restore supervisionado, cofre/cópia externa, deploy seguro, revisão formal LGPD e avaliação independente. A proteção de `main` e a divulgação privada de vulnerabilidades exigem um plano compatível enquanto o repositório permanecer privado.
