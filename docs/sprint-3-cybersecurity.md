@@ -221,6 +221,7 @@ Antes da operação, o controlador e o encarregado devem validar finalidade/base
 | Gitleaks | Passou no CI em 27/09/2026 | Varredura de código e histórico completo, sem segredos detectados. |
 | Testes CI | Execução final após push | Pipeline inclui build/typecheck, auditorias, Semgrep, Gitleaks, testes API/mobile e fixture criptográfica; não equivale a QA em aparelho. |
 | Lint | Não executado nesta revisão | ESLint 9 local não encontra configuração eslint.config.*; lint não é check obrigatório na pipeline atual. |
+| Exceção Gitleaks | Um achado `generic-api-key` em e9065b9 foi verificado como texto público dos parâmetros scrypt, não credencial | O fingerprint exato está em .gitleaksignore; o manifesto registra os mesmos parâmetros em campos separados. |
 | DB/SMTP, backup/restore e saneamento | Não executados | Não conectei nem alterei banco, não gerei backup real, não enviei e-mails e não apliquei saneamento. |
 | Testes de segurança API/mobile | 6 testes negativos de API, 3 de transporte TLS mobile e 13 de sessão/contrato passaram localmente | Execução com mocks; não substitui validação em banco efêmero ou dispositivo físico. |
 | Dashboard/prints/pentest | Não disponíveis | Gerar métricas, screenshots e logs reais sanitizados em homologação; pentest independente ainda não realizado. |

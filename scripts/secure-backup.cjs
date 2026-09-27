@@ -308,7 +308,7 @@ async function backup() {
     const manifest = {
       version: 1,
       encryption: 'AES-256-GCM',
-      keyDerivation: 'scrypt-N32768-r8-p1',
+      keyDerivation: { algorithm: 'scrypt', cost: 32768, blockSize: 8, parallelization: 1 },
       sourceDatabase: SOURCE_DATABASE,
       backupFile: path.basename(backupFile),
       sha256: await hashFile(backupFile),
