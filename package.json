@@ -2,7 +2,7 @@
   "name": "ford-vinculo-360",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "start:local": "powershell -ExecutionPolicy Bypass -File scripts/start-local.ps1",
     "test:regression": "node scripts/regression.test.cjs",
