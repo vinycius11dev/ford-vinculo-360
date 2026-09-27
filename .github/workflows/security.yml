@@ -29,6 +29,8 @@ jobs:
         run: npm install --global pnpm@10.17.1
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
+      - name: Generate Prisma Client
+        run: pnpm db:generate
       - name: Build API and web; typecheck mobile
         run: pnpm check
       - name: Run mobile session and contract tests
