@@ -1,0 +1,148 @@
+.calendar-strip {
+  grid-template-columns: 36px repeat(7, minmax(58px, 1fr)) 36px;
+}
+
+.calendar-strip .calendar-day {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  min-height: 54px;
+  padding: 8px;
+  color: #65798b;
+  transition: 160ms ease;
+}
+
+.calendar-strip .calendar-day:hover {
+  background: #e8f2f9;
+  color: #0b6fae;
+}
+
+.calendar-strip .calendar-day span {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.calendar-strip .calendar-day strong {
+  font-size: 15px;
+}
+
+.calendar-strip .calendar-day.selected {
+  background: #0b6fae;
+  color: #fff;
+  box-shadow: 0 7px 16px rgba(11, 111, 174, 0.22);
+}
+
+.capacity-policy {
+  margin: 7px 0 -8px;
+  color: #728596;
+  font-size: 9px;
+}
+
+.form-section-heading {
+  display: grid;
+  gap: 4px;
+  margin-top: 5px;
+  padding-top: 16px;
+  border-top: 1px solid #e7edf2;
+}
+
+.form-section-heading strong {
+  color: #20384d;
+  font-size: 13px;
+}
+
+.weekday-picker {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.weekday-picker label {
+  cursor: pointer;
+}
+
+.weekday-picker input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.weekday-picker span {
+  display: grid;
+  place-items: center;
+  min-height: 36px;
+  border: 1px solid #dce5ec;
+  border-radius: 8px;
+  background: #f7f9fb;
+  color: #607689;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.weekday-picker input:checked + span {
+  border-color: #0d78bd;
+  background: #e4f2fb;
+  color: #086ba9;
+  box-shadow: inset 0 0 0 1px #0d78bd;
+}
+
+.schedule-policy-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 12px;
+  border: 1px solid #dceaf3;
+  border-radius: 9px;
+  background: #f1f8fc;
+  color: #37647f;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.schedule-policy-note svg {
+  flex: 0 0 auto;
+  color: #0b78bd;
+}
+
+.criteria-note {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid #dceaf3;
+  border-radius: 9px;
+  background: #f5f9fc;
+  color: #607589;
+  font-size: 9px;
+  line-height: 1.55;
+  text-align: left;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 900px) {
+  .calendar-strip {
+    grid-template-columns: 32px repeat(4, 1fr) 32px;
+    overflow: hidden;
+  }
+
+  .calendar-strip .calendar-day:nth-of-type(n + 6) {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .calendar-strip {
+    grid-template-columns: 28px repeat(3, 1fr) 28px;
+  }
+
+  .calendar-strip .calendar-day:nth-of-type(n + 5) {
+    display: none;
+  }
+
+  .weekday-picker {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

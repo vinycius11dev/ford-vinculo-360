@@ -1,0 +1,7 @@
+<svg width="242" height="58" viewBox="0 0 242 58" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ford Vínculo 360">
+  <ellipse cx="43" cy="29" rx="39" ry="22" fill="#0A5DA8" stroke="#F8FBFF" stroke-width="2"/>
+  <text x="43" y="37" fill="white" font-size="26" font-family="Georgia, serif" font-style="italic" font-weight="700" text-anchor="middle">Ford</text>
+  <path d="M97 12V46" stroke="#537894"/>
+  <text x="112" y="29" fill="#FFFFFF" font-size="18" font-family="Arial, sans-serif" font-weight="700" letter-spacing="1.6">VÍNCULO</text>
+  <text x="112" y="46" fill="#7FB8EC" font-size="12" font-family="Arial, sans-serif" font-weight="600" letter-spacing="4">360</text>
+</svg>

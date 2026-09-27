@@ -1,0 +1,16 @@
+ALTER TABLE `CatalogItem`
+    ADD COLUMN `modelCode` VARCHAR(40) NULL,
+    ADD COLUMN `modelYear` INTEGER NULL,
+    ADD COLUMN `version` VARCHAR(120) NULL,
+    ADD COLUMN `engine` VARCHAR(100) NULL,
+    ADD COLUMN `fuelType` VARCHAR(80) NULL,
+    ADD COLUMN `transmission` VARCHAR(80) NULL,
+    ADD COLUMN `drive` VARCHAR(80) NULL,
+    ADD COLUMN `power` VARCHAR(80) NULL,
+    ADD COLUMN `torque` VARCHAR(80) NULL,
+    ADD COLUMN `consumption` VARCHAR(100) NULL,
+    ADD COLUMN `rangeLabel` VARCHAR(100) NULL,
+    ADD COLUMN `dimensions` VARCHAR(160) NULL,
+    ADD COLUMN `seats` INTEGER NULL,
+    ADD COLUMN `warrantyLabel` VARCHAR(100) NULL,
+    ADD COLUMN `stockLabel` VARCHAR(100) NULL;

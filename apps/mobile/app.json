@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Ford Vínculo 360",
+    "slug": "ford-vinculo-360",
+    "scheme": "fordvinculo360",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/ford-favicon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/ford-favicon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#061d36"
+    },
+    "android": {
+      "package": "com.ford.vinculo360",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/ford-favicon.png",
+        "backgroundColor": "#061d36"
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/ford-favicon.png"
+    }
+  }
+}
+

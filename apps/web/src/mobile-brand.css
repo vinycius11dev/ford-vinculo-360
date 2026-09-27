@@ -1,0 +1,4 @@
+.mobile-logo{display:none;background:#071f38;border-radius:8px;padding:2px 8px;height:39px;align-items:center}
+.mobile-logo img{width:105px;height:32px;object-fit:contain}
+@media(max-width:900px){.mobile-logo{display:flex}}
+@media(max-width:390px){.mobile-logo img{width:88px}.mobile-logo{padding-inline:5px}}

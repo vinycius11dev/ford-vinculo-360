@@ -1,0 +1,825 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  DEALERSHIP_AGENT
+  DEALERSHIP_MANAGER
+  FORD_ADMIN
+}
+
+enum OwnershipStatus {
+  ACTIVE
+  ENDED
+  PENDING_VERIFICATION
+}
+
+enum ServiceOrderStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  REQUESTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum VoucherStatus {
+  AVAILABLE
+  REDEEMED
+  EXPIRED
+}
+
+enum RepurchaseLeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  WON
+  LOST
+}
+
+enum RecallSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RecallTargetStatus {
+  PENDING
+  CONTACTED
+  SCHEDULED
+  COMPLETED
+}
+
+enum NotificationType {
+  SERVICE
+  CAMPAIGN
+  RECALL
+  LOYALTY
+  SYSTEM
+}
+
+enum ConsentPurpose {
+  MARKETING
+  ANALYTICS
+  PERSONALIZATION
+}
+
+enum DataRequestType {
+  ACCESS
+  EXPORT
+  CORRECTION
+  DELETION
+}
+
+enum DataRequestStatus {
+  RECEIVED
+  IN_REVIEW
+  COMPLETED
+  REJECTED
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum SupportTicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum SupportTicketCategory {
+  ACCESS
+  SCHEDULING
+  DATA_INTEGRATION
+  BILLING
+  OTHER
+}
+
+enum VehicleCondition {
+  NEW
+  USED
+}
+
+enum VehicleSaleStatus {
+  IN_STOCK
+  RESERVED
+  SOLD
+}
+
+enum MessageChannel {
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum MessageStatus {
+  PENDING
+  SENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum MessageTemplateKey {
+  TEAM_INVITATION
+  CUSTOMER_ACTIVATION
+  VEHICLE_APPROVED
+  VEHICLE_REGISTRATION_RECEIVED
+  VEHICLE_REJECTED
+  PASSWORD_RESET
+  CAMPAIGN_OFFER
+  EMAIL_TEST
+}
+
+/// Decisão humana sobre uma recomendação gerada pela IA. A IA nunca dispara
+/// campanha: ela apenas apresenta a sugestão para avaliação da equipe.
+enum AiRecommendationDecision {
+  APPROVED
+  DISMISSED
+}
+
+model User {
+  id                            String                   @id @default(cuid()) @db.VarChar(36)
+  email                         String                   @unique
+  passwordHash                  String                   @db.VarChar(255)
+  fullName                      String
+  phone                         String?
+  /// Define se o cliente comprador é pessoa física ou pessoa jurídica.
+  customerType                  String                   @default("INDIVIDUAL") @db.VarChar(12)
+  /// Momento do relacionamento comercial do cliente com a marca Ford.
+  fordRelationship              String                   @default("UNKNOWN") @db.VarChar(20)
+  // Dados cadastrais do proprietário. O CPF é exigido em nota fiscal, contrato
+  // e emplacamento, então é armazenado em claro: aparece mascarado nas
+  // listagens e completo apenas na ficha, com registro na trilha de auditoria.
+  cpf                           String?                  @unique @db.VarChar(11)
+  cnpj                          String?                  @unique @db.VarChar(14)
+  tradeName                     String?
+  stateRegistration             String?                  @db.VarChar(30)
+  stateRegistrationExempt       Boolean                  @default(false)
+  companyRegistrationStatus     String?                  @db.VarChar(40)
+  legalRepresentativeName       String?
+  legalRepresentativeCpf        String?                  @db.VarChar(11)
+  legalRepresentativeDocument   String?                  @db.VarChar(30)
+  legalRepresentativeRole       String?                  @db.VarChar(60)
+  representationBasis           String?                  @db.VarChar(30)
+  representationDocumentChecked Boolean                  @default(false)
+  rg                            String?                  @db.VarChar(20)
+  rgIssuer                      String?                  @db.VarChar(20)
+  birthDate                     DateTime?
+  addressZip                    String?                  @db.VarChar(8)
+  addressStreet                 String?
+  addressNumber                 String?                  @db.VarChar(10)
+  addressComplement             String?
+  addressDistrict               String?
+  addressCity                   String?
+  addressState                  String?                  @db.VarChar(2)
+  /// Unidade que cadastrou o cliente: garante que ele seja visível para a
+  /// concessionária mesmo antes de ter um veículo vinculado.
+  registeredByDealershipId      String?                  @db.VarChar(36)
+  role                          UserRole                 @default(CUSTOMER)
+  active                        Boolean                  @default(true)
+  passwordSetupRequired         Boolean                  @default(false)
+  failedLoginAttempts           Int                      @default(0)
+  lockedUntil                   DateTime?
+  sessionVersion                Int                      @default(0)
+  passwordChangedAt             DateTime                 @default(now())
+  dealershipId                  String?                  @db.VarChar(36)
+  createdAt                     DateTime                 @default(now())
+  updatedAt                     DateTime                 @updatedAt
+  dealership                    Dealership?              @relation(fields: [dealershipId], references: [id])
+  ownerships                    VehicleOwnership[]
+  bookings                      Booking[]
+  loyalty                       LoyaltyAccount?
+  auditLogs                     AuditLog[]
+  ownedRepurchaseLeads          RepurchaseLead[]         @relation("RepurchaseLeadOwner")
+  createdRepurchaseLeads        RepurchaseLead[]         @relation("RepurchaseLeadCreator")
+  repurchaseLeadEvents          RepurchaseLeadEvent[]
+  notifications                 Notification[]
+  consents                      UserConsent[]
+  dataRequests                  DataSubjectRequest[]     @relation("DataRequestOwner")
+  handledDataRequests           DataSubjectRequest[]     @relation("DataRequestHandler")
+  passwordResetTokens           PasswordResetToken[]
+  createdInvitations            UserInvitation[]         @relation("InvitationCreator")
+  requestedSupportTickets       SupportTicket[]          @relation("SupportRequester")
+  assignedSupportTickets        SupportTicket[]          @relation("SupportAssignee")
+  sentSupportMessages           SupportMessage[]         @relation("SupportMessageSender")
+  authSessions                  AuthSession[]
+  outboundMessages              OutboundMessage[]
+  aiRecommendationReviews       AiRecommendationReview[] @relation("AiRecommendationReviewer")
+  purchases                     Sale[]                   @relation("SaleCustomer")
+  salesMade                     Sale[]                   @relation("SaleSeller")
+  registeredByDealership        Dealership?              @relation("RegisteredCustomers", fields: [registeredByDealershipId], references: [id])
+
+  @@index([dealershipId])
+  @@index([registeredByDealershipId])
+}
+
+model Dealership {
+  id                   String           @id @default(cuid()) @db.VarChar(36)
+  legalName            String
+  tradeName            String
+  cnpj                 String           @unique
+  city                 String
+  state                String
+  timezone             String           @default("America/Sao_Paulo") @db.VarChar(64)
+  businessDays         String           @default("1,2,3,4,5") @db.VarChar(20)
+  openingTime          String           @default("08:00") @db.VarChar(5)
+  closingTime          String           @default("18:00") @db.VarChar(5)
+  slotDurationMinutes  Int              @default(30)
+  simultaneousCapacity Int              @default(3)
+  createdAt            DateTime         @default(now())
+  vehiclesSold         Vehicle[]        @relation("OriginDealership")
+  vehiclesInStock      Vehicle[]        @relation("StockDealership")
+  serviceOrders        ServiceOrder[]
+  bookings             Booking[]
+  staff                User[]
+  repurchaseLeads      RepurchaseLead[]
+  notifications        Notification[]
+  invitations          UserInvitation[]
+  supportTickets       SupportTicket[]
+  sales                Sale[]
+  registeredCustomers  User[]           @relation("RegisteredCustomers")
+}
+
+model Vehicle {
+  id                      String                   @id @default(cuid()) @db.VarChar(36)
+  vin                     String                   @unique @db.VarChar(17)
+  plate                   String?                  @unique @db.VarChar(8)
+  model                   String
+  version                 String?
+  exteriorColor           String?
+  interiorColor           String?
+  engine                  String?
+  fuelType                String?
+  transmission            String?
+  drive                   String?
+  power                   String?
+  doors                   Int?
+  seats                   Int?
+  features                String?                  @db.Text
+  imageUrl                String?                  @db.VarChar(300)
+  catalogItemId           String?                  @db.VarChar(36)
+  modelYear               Int
+  manufactureYear         Int
+  currentMileage          Int                      @default(0)
+  originDealershipId      String?                  @db.VarChar(36)
+  // Estado comercial: o VIN existe desde a fábrica; a venda apenas vincula o
+  // primeiro proprietário. Um usado retomado em troca volta ao estoque
+  // carregando todo o histórico já registrado.
+  condition               VehicleCondition         @default(NEW)
+  saleStatus              VehicleSaleStatus?
+  listPrice               Int?
+  stockDealershipId       String?                  @db.VarChar(36)
+  stockSince              DateTime?
+  warrantyUntil           DateTime?
+  sourceSystem            String?                  @db.VarChar(80)
+  externalId              String?                  @db.VarChar(120)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  originDealership        Dealership?              @relation("OriginDealership", fields: [originDealershipId], references: [id])
+  stockDealership         Dealership?              @relation("StockDealership", fields: [stockDealershipId], references: [id])
+  catalogItem             CatalogItem?             @relation(fields: [catalogItemId], references: [id], onDelete: SetNull)
+  ownerships              VehicleOwnership[]
+  serviceOrders           ServiceOrder[]
+  bookings                Booking[]
+  campaignTargets         CampaignTarget[]
+  aiRecommendationReviews AiRecommendationReview[]
+  repurchaseLeads         RepurchaseLead[]
+  recallTargets           RecallTarget[]
+  sales                   Sale[]                   @relation("SoldVehicle")
+  tradeInSales            Sale[]                   @relation("TradeInVehicle")
+
+  @@unique([sourceSystem, externalId])
+  @@index([model, modelYear])
+  @@index([saleStatus, stockDealershipId])
+  @@index([catalogItemId])
+}
+
+model CatalogItem {
+  id                   String       @id @default(cuid()) @db.VarChar(36)
+  slug                 String       @unique @db.VarChar(120)
+  name                 String       @db.VarChar(120)
+  modelCode            String?      @db.VarChar(40)
+  modelYear            Int?
+  version              String?      @db.VarChar(120)
+  category             String       @db.VarChar(80)
+  summary              String       @db.VarChar(240)
+  description          String       @db.Text
+  highlights           String?      @db.Text
+  engine               String?      @db.VarChar(100)
+  fuelType             String?      @db.VarChar(80)
+  transmission         String?      @db.VarChar(80)
+  drive                String?      @db.VarChar(80)
+  power                String?      @db.VarChar(80)
+  torque               String?      @db.VarChar(80)
+  consumption          String?      @db.VarChar(100)
+  rangeLabel           String?      @db.VarChar(100)
+  dimensions           String?      @db.VarChar(160)
+  seats                Int?
+  doors                Int?
+  exteriorColors       Json?
+  interiorColors       Json?
+  warrantyLabel        String?      @db.VarChar(100)
+  imageUrl             String?      @db.VarChar(300)
+  priceLabel           String?      @db.VarChar(80)
+  stockLabel           String?      @db.VarChar(100)
+  ctaLabel             String       @default("Tenho interesse") @db.VarChar(80)
+  sortOrder            Int          @default(0)
+  published            Boolean      @default(true)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  modelId              String       @db.VarChar(36)
+  exteriorColor        String?      @db.VarChar(80)
+  interiorColor        String?      @db.VarChar(80)
+  additionalPrice      Int          @default(0)
+  configurationDetails Json?
+  equipment            Json?
+  vehicleModel         VehicleModel @relation(fields: [modelId], references: [id], onDelete: Restrict)
+  vehicles             Vehicle[]
+
+  @@index([published, sortOrder])
+  @@index([modelId, published, sortOrder])
+}
+
+/// Dados principais compartilhados por todas as versões/configurações do carro.
+/// Uma variação comercial fica em CatalogItem e pode originar milhares de VINs.
+model VehicleModel {
+  id                      String        @id @default(cuid()) @db.VarChar(36)
+  slug                    String        @unique @db.VarChar(120)
+  name                    String        @db.VarChar(120)
+  modelCode               String?       @db.VarChar(40)
+  modelYear               Int
+  category                String        @db.VarChar(80)
+  summary                 String        @db.VarChar(240)
+  description             String        @db.Text
+  dimensions              String?       @db.VarChar(160)
+  seats                   Int?
+  doors                   Int?
+  warrantyLabel           String?       @db.VarChar(100)
+  basePrice               Int           @default(0)
+  imageUrl                String?       @db.VarChar(300)
+  technicalSpecifications Json?
+  standardEquipment       Json?
+  published               Boolean       @default(true)
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  variants                CatalogItem[]
+
+  @@unique([name, modelYear])
+  @@index([published, name, modelYear])
+}
+
+model Sale {
+  id               String           @id @default(cuid()) @db.VarChar(36)
+  vehicleId        String           @db.VarChar(36)
+  dealershipId     String           @db.VarChar(36)
+  customerId       String           @db.VarChar(36)
+  soldById         String?          @db.VarChar(36)
+  tradeInVehicleId String?          @db.VarChar(36)
+  repurchaseLeadId String?          @db.VarChar(36)
+  condition        VehicleCondition
+  price            Int
+  tradeInValue     Int?
+  warrantyMonths   Int              @default(36)
+  notes            String?          @db.Text
+  soldAt           DateTime         @default(now())
+  createdAt        DateTime         @default(now())
+  vehicle          Vehicle          @relation("SoldVehicle", fields: [vehicleId], references: [id])
+  tradeInVehicle   Vehicle?         @relation("TradeInVehicle", fields: [tradeInVehicleId], references: [id], onDelete: SetNull)
+  dealership       Dealership       @relation(fields: [dealershipId], references: [id])
+  customer         User             @relation("SaleCustomer", fields: [customerId], references: [id])
+  soldBy           User?            @relation("SaleSeller", fields: [soldById], references: [id], onDelete: SetNull)
+  repurchaseLead   RepurchaseLead?  @relation(fields: [repurchaseLeadId], references: [id], onDelete: SetNull)
+
+  @@index([dealershipId, soldAt])
+  @@index([customerId])
+}
+
+model VehicleOwnership {
+  id        String          @id @default(cuid()) @db.VarChar(36)
+  vehicleId String          @db.VarChar(36)
+  userId    String          @db.VarChar(36)
+  status    OwnershipStatus @default(PENDING_VERIFICATION)
+  startedAt DateTime        @default(now())
+  endedAt   DateTime?
+  createdAt DateTime        @default(now())
+  vehicle   Vehicle         @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, status])
+  @@index([userId, status])
+}
+
+model ServiceOrder {
+  id           String             @id @default(cuid()) @db.VarChar(36)
+  vehicleId    String             @db.VarChar(36)
+  dealershipId String             @db.VarChar(36)
+  mileage      Int
+  status       ServiceOrderStatus @default(OPEN)
+  description  String?
+  /// Valor do atendimento em reais, base da receita de pós-venda por VIN.
+  amount       Int?
+  sourceSystem String?            @db.VarChar(80)
+  externalId   String?            @db.VarChar(120)
+  completedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  vehicle      Vehicle            @relation(fields: [vehicleId], references: [id])
+  dealership   Dealership         @relation(fields: [dealershipId], references: [id])
+  pointEntries PointTransaction[]
+
+  @@unique([sourceSystem, externalId])
+  @@index([vehicleId, completedAt])
+}
+
+model ProgramSettings {
+  id              String   @id @db.VarChar(36)
+  minimumPoints   Int      @default(100)
+  mileagePerPoint Int      @default(100)
+  updatedAt       DateTime @updatedAt
+}
+
+model LoyaltyAccount {
+  id           String             @id @default(cuid()) @db.VarChar(36)
+  userId       String             @unique @db.VarChar(36)
+  balance      Int                @default(0)
+  updatedAt    DateTime           @updatedAt
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions PointTransaction[]
+  vouchers     Voucher[]
+}
+
+model PointTransaction {
+  id               String         @id @default(cuid()) @db.VarChar(36)
+  loyaltyAccountId String         @db.VarChar(36)
+  serviceOrderId   String?        @db.VarChar(36)
+  amount           Int
+  reason           String
+  createdAt        DateTime       @default(now())
+  loyaltyAccount   LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+  serviceOrder     ServiceOrder?  @relation(fields: [serviceOrderId], references: [id])
+
+  @@index([loyaltyAccountId, createdAt])
+}
+
+model Voucher {
+  id               String         @id @default(cuid()) @db.VarChar(36)
+  loyaltyAccountId String         @db.VarChar(36)
+  code             String         @unique
+  title            String
+  pointsCost       Int
+  status           VoucherStatus  @default(AVAILABLE)
+  expiresAt        DateTime?
+  redeemedAt       DateTime?
+  loyaltyAccount   LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id           String        @id @default(cuid()) @db.VarChar(36)
+  vehicleId    String        @db.VarChar(36)
+  userId       String        @db.VarChar(36)
+  dealershipId String        @db.VarChar(36)
+  requestedFor DateTime
+  status       BookingStatus @default(REQUESTED)
+  notes        String?
+  createdAt    DateTime      @default(now())
+  vehicle      Vehicle       @relation(fields: [vehicleId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  dealership   Dealership    @relation(fields: [dealershipId], references: [id])
+
+  @@index([dealershipId, requestedFor])
+}
+
+model Campaign {
+  id                String           @id @default(cuid()) @db.VarChar(36)
+  name              String
+  description       String
+  /// Conteúdo aprovado para exibição ao proprietário. Campos nulos mantêm a
+  /// campanha exclusivamente operacional, sem vazar segmentação interna.
+  publicTitle       String?
+  publicDescription String?          @db.Text
+  publicCtaLabel    String?          @db.VarChar(80)
+  publicCtaLink     String?          @db.VarChar(255)
+  startsAt          DateTime
+  endsAt            DateTime
+  active            Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  targets           CampaignTarget[]
+}
+
+model CampaignTarget {
+  id               String            @id @default(cuid()) @db.VarChar(36)
+  campaignId       String            @db.VarChar(36)
+  vehicleId        String            @db.VarChar(36)
+  sentAt           DateTime?
+  viewedAt         DateTime?
+  convertedAt      DateTime?
+  campaign         Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  vehicle          Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  outboundMessages OutboundMessage[]
+
+  @@unique([campaignId, vehicleId])
+}
+
+/// Registro auditável da revisão humana de uma recomendação de retenção.
+/// Os atributos de previsão armazenados são apenas técnicos; dados pessoais
+/// continuam no domínio administrativo, sob controle de acesso por papel.
+model AiRecommendationReview {
+  id             String                   @id @default(cuid()) @db.VarChar(36)
+  vehicleId      String                   @db.VarChar(36)
+  reviewedById   String                   @db.VarChar(36)
+  decision       AiRecommendationDecision
+  reason         String?                  @db.Text
+  score          Int
+  classification String                   @db.VarChar(20)
+  modelVersion   String                   @db.VarChar(100)
+  modelSource    String                   @db.VarChar(40)
+  reviewedAt     DateTime                 @default(now())
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  vehicle        Vehicle                  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  reviewedBy     User                     @relation("AiRecommendationReviewer", fields: [reviewedById], references: [id], onDelete: Restrict)
+
+  @@unique([vehicleId, modelVersion])
+  @@index([vehicleId, reviewedAt])
+  @@index([reviewedById, reviewedAt])
+}
+
+model RepurchaseLead {
+  id             String                @id @default(cuid()) @db.VarChar(36)
+  vehicleId      String                @db.VarChar(36)
+  ownerId        String?               @db.VarChar(36)
+  dealershipId   String                @db.VarChar(36)
+  createdById    String?               @db.VarChar(36)
+  score          Int
+  estimatedValue Int
+  status         RepurchaseLeadStatus  @default(NEW)
+  notes          String?
+  contactedAt    DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  vehicle        Vehicle               @relation(fields: [vehicleId], references: [id])
+  owner          User?                 @relation("RepurchaseLeadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  dealership     Dealership            @relation(fields: [dealershipId], references: [id])
+  createdBy      User?                 @relation("RepurchaseLeadCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  events         RepurchaseLeadEvent[]
+  sales          Sale[]
+
+  @@unique([vehicleId, dealershipId])
+  @@index([dealershipId, status])
+  @@index([ownerId])
+}
+
+model RepurchaseLeadEvent {
+  id            String                @id @default(cuid()) @db.VarChar(36)
+  leadId        String                @db.VarChar(36)
+  performedById String?               @db.VarChar(36)
+  fromStatus    RepurchaseLeadStatus?
+  toStatus      RepurchaseLeadStatus
+  notes         String?
+  createdAt     DateTime              @default(now())
+  lead          RepurchaseLead        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  performedBy   User?                 @relation(fields: [performedById], references: [id], onDelete: SetNull)
+
+  @@index([leadId, createdAt])
+}
+
+model Recall {
+  id          String         @id @default(cuid()) @db.VarChar(36)
+  code        String         @unique @db.VarChar(40)
+  title       String
+  description String         @db.Text
+  severity    RecallSeverity @default(HIGH)
+  active      Boolean        @default(true)
+  startsAt    DateTime
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  targets     RecallTarget[]
+}
+
+model RecallTarget {
+  id          String             @id @default(cuid()) @db.VarChar(36)
+  recallId    String             @db.VarChar(36)
+  vehicleId   String             @db.VarChar(36)
+  status      RecallTargetStatus @default(PENDING)
+  notifiedAt  DateTime?
+  completedAt DateTime?
+  createdAt   DateTime           @default(now())
+  recall      Recall             @relation(fields: [recallId], references: [id], onDelete: Cascade)
+  vehicle     Vehicle            @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([recallId, vehicleId])
+  @@index([vehicleId, status])
+}
+
+model Notification {
+  id           String           @id @default(cuid()) @db.VarChar(36)
+  userId       String?          @db.VarChar(36)
+  dealershipId String?          @db.VarChar(36)
+  type         NotificationType
+  title        String
+  message      String           @db.Text
+  link         String?          @db.VarChar(255)
+  readAt       DateTime?
+  createdAt    DateTime         @default(now())
+  user         User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dealership   Dealership?      @relation(fields: [dealershipId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@index([dealershipId, createdAt])
+}
+
+model UserConsent {
+  id        String         @id @default(cuid()) @db.VarChar(36)
+  userId    String         @db.VarChar(36)
+  purpose   ConsentPurpose
+  granted   Boolean        @default(false)
+  source    String         @default("WEB") @db.VarChar(30)
+  grantedAt DateTime?
+  revokedAt DateTime?
+  updatedAt DateTime       @updatedAt
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, purpose])
+}
+
+model DataSubjectRequest {
+  id            String            @id @default(cuid()) @db.VarChar(36)
+  requestedById String            @db.VarChar(36)
+  handledById   String?           @db.VarChar(36)
+  type          DataRequestType
+  status        DataRequestStatus @default(RECEIVED)
+  notes         String?           @db.Text
+  resolution    String?           @db.Text
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  completedAt   DateTime?
+  requestedBy   User              @relation("DataRequestOwner", fields: [requestedById], references: [id], onDelete: Cascade)
+  handledBy     User?             @relation("DataRequestHandler", fields: [handledById], references: [id], onDelete: SetNull)
+
+  @@index([requestedById, status])
+  @@index([status, createdAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid()) @db.VarChar(36)
+  userId    String    @db.VarChar(36)
+  tokenHash String    @unique @db.VarChar(64)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+}
+
+model AuthSession {
+  id         String    @id @default(cuid()) @db.VarChar(36)
+  userId     String    @db.VarChar(36)
+  tokenHash  String    @unique @db.VarChar(64)
+  deviceName String    @db.VarChar(120)
+  userAgent  String?   @db.Text
+  ipAddress  String?   @db.VarChar(45)
+  lastUsedAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+}
+
+model UserInvitation {
+  id           String      @id @default(cuid()) @db.VarChar(36)
+  email        String
+  fullName     String
+  phone        String?
+  role         UserRole
+  dealershipId String?     @db.VarChar(36)
+  createdById  String      @db.VarChar(36)
+  tokenHash    String      @unique @db.VarChar(64)
+  expiresAt    DateTime
+  acceptedAt   DateTime?
+  cancelledAt  DateTime?
+  createdAt    DateTime    @default(now())
+  dealership   Dealership? @relation(fields: [dealershipId], references: [id], onDelete: Cascade)
+  createdBy    User        @relation("InvitationCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([email, expiresAt])
+  @@index([dealershipId, createdAt])
+}
+
+model SupportTicket {
+  id           String                @id @default(cuid()) @db.VarChar(36)
+  requesterId  String                @db.VarChar(36)
+  dealershipId String?               @db.VarChar(36)
+  assignedToId String?               @db.VarChar(36)
+  subject      String
+  message      String                @db.Text
+  category     SupportTicketCategory @default(OTHER)
+  priority     SupportTicketPriority @default(NORMAL)
+  status       SupportTicketStatus   @default(OPEN)
+  resolution   String?               @db.Text
+  /// Resultado da validação de veículo: APPROVED ou REJECTED. Nulo nos demais chamados.
+  validationDecision String?         @db.VarChar(10)
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  resolvedAt   DateTime?
+  requester    User                  @relation("SupportRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  dealership   Dealership?           @relation(fields: [dealershipId], references: [id], onDelete: SetNull)
+  assignedTo   User?                 @relation("SupportAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  messages     SupportMessage[]
+
+  @@index([dealershipId, status, createdAt])
+  @@index([requesterId, createdAt])
+  @@index([status, priority, createdAt])
+}
+
+model SupportMessage {
+  id        String        @id @default(cuid()) @db.VarChar(36)
+  ticketId  String        @db.VarChar(36)
+  senderId  String        @db.VarChar(36)
+  body      String        @db.Text
+  readAt    DateTime?
+  createdAt DateTime      @default(now())
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender    User          @relation("SupportMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@index([ticketId, readAt])
+  @@index([senderId, createdAt])
+}
+
+model OutboundMessage {
+  id               String             @id @default(cuid()) @db.VarChar(36)
+  channel          MessageChannel
+  templateKey      MessageTemplateKey
+  recipient        String             @db.VarChar(255)
+  payload          Json
+  status           MessageStatus      @default(PENDING)
+  attempts         Int                @default(0)
+  maxAttempts      Int                @default(5)
+  nextAttemptAt    DateTime           @default(now())
+  lastError        String?            @db.Text
+  providerRef      String?            @db.VarChar(190)
+  userId           String?            @db.VarChar(36)
+  campaignTargetId String?            @db.VarChar(36)
+  sentAt           DateTime?
+  failedAt         DateTime?
+  cancelledAt      DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  user             User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  campaignTarget   CampaignTarget?    @relation(fields: [campaignTargetId], references: [id], onDelete: SetNull)
+  events           MessageEvent[]
+
+  @@index([status, nextAttemptAt])
+  @@index([userId, createdAt])
+  @@index([campaignTargetId])
+  @@index([templateKey])
+}
+
+model MessageEvent {
+  id        String          @id @default(cuid()) @db.VarChar(36)
+  messageId String          @db.VarChar(36)
+  status    MessageStatus
+  detail    String?         @db.Text
+  createdAt DateTime        @default(now())
+  message   OutboundMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId, createdAt])
+}
+
+model AuditLog {
+  id            String   @id @default(cuid()) @db.VarChar(36)
+  performedById String?  @db.VarChar(36)
+  action        String   @db.VarChar(80)
+  entityType    String   @db.VarChar(80)
+  entityId      String?  @db.VarChar(36)
+  metadata      Json?
+  ipAddress     String?  @db.VarChar(45)
+  createdAt     DateTime @default(now())
+  performedBy   User?    @relation(fields: [performedById], references: [id], onDelete: SetNull)
+
+  @@index([performedById, createdAt])
+  @@index([entityType, entityId])
+}

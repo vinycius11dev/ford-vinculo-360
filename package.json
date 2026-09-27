@@ -1,0 +1,32 @@
+{
+  "name": "ford-vinculo-360",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.17.1",
+  "scripts": {
+    "start:local": "powershell -ExecutionPolicy Bypass -File scripts/start-local.ps1",
+    "test:regression": "node scripts/regression.test.cjs",
+    "test:mobile-session": "node --test scripts/mobile-session.test.cjs",
+    "test:mobile": "node --test scripts/mobile-session.test.cjs scripts/mobile-contract.test.cjs",
+    "build:mobile:apk": "pnpm --filter @ford/mobile run build:apk",
+    "verify:local": "powershell -ExecutionPolicy Bypass -File scripts/verify-local.ps1",
+    "dev": "pnpm --parallel --filter @ford/api --filter @ford/web dev",
+    "dev:api": "pnpm --filter @ford/api dev",
+    "dev:web": "pnpm --filter @ford/web dev",
+    "dev:mobile": "pnpm --filter @ford/mobile start",
+    "dev:ml": "python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000 --app-dir apps/ml",
+    "build": "pnpm --filter @ford/api build && pnpm --filter @ford/web build",
+    "check": "pnpm --filter @ford/api build && pnpm --filter @ford/web build && pnpm --filter @ford/mobile typecheck",
+    "db:generate": "pnpm --filter @ford/api prisma:generate",
+    "db:migrate": "pnpm --filter @ford/api exec prisma migrate dev",
+    "db:migrate:initial": "pnpm --filter @ford/api exec prisma migrate dev --name initial",
+    "db:seed": "pnpm --filter @ford/api seed",
+    "db:reset-data": "pnpm --filter @ford/api reset:data",
+    "db:backup": "powershell -ExecutionPolicy Bypass -File scripts/backup-wamp.ps1",
+    "test:smoke": "powershell -ExecutionPolicy Bypass -File scripts/smoke-api.ps1",
+    "test:scheduling": "powershell -ExecutionPolicy Bypass -File scripts/smoke-scheduling.ps1",
+    "test:support-access": "powershell -ExecutionPolicy Bypass -File scripts/smoke-support-access.ps1",
+    "test:refresh-sessions": "powershell -ExecutionPolicy Bypass -File scripts/smoke-refresh-sessions.ps1",
+    "test:messaging": "powershell -ExecutionPolicy Bypass -File scripts/smoke-messaging.ps1"
+  }
+}

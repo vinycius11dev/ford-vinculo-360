@@ -1,0 +1,87 @@
+name: Security and quality
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Build, mobile tests, and full Node dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - name: Set up Node.js
+        uses: actions/setup-node@202fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 24
+      - name: Install pnpm
+        run: npm install --global pnpm@10.17.1
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build API and web; typecheck mobile
+        run: pnpm check
+      - name: Run mobile session and contract tests
+        run: pnpm test:mobile
+      - name: Audit all Node dependencies
+        run: pnpm audit --audit-level high
+
+  python-dependencies:
+    name: Audit Python dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: "3.12"
+      - name: Install pinned audit tool
+        run: python -m pip install pip-audit==2.10.1
+      - name: Audit declared ML dependencies
+        run: pip-audit -r apps/ml/requirements.txt
+
+  sast:
+    name: Semgrep static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: "3.12"
+      - name: Install pinned Semgrep CLI
+        run: python -m pip install semgrep==1.178.0
+      - name: Scan repository
+        run: semgrep scan --config auto --error --metrics=off
+
+  secrets:
+    name: Gitleaks secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          fetch-depth: 0
+      - name: Install checksum-verified Gitleaks
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            --output "$RUNNER_TEMP/gitleaks.tar.gz"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Scan source and history
+        run: gitleaks git --redact --exit-code 1

@@ -1,0 +1,52 @@
+{
+  "name": "@ford/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main",
+    "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "seed": "ts-node --transpile-only prisma/bootstrap.ts",
+    "seed:demo": "ts-node --transpile-only prisma/seed.ts",
+    "reset:data": "ts-node --transpile-only prisma/reset-operational-data.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.6",
+    "@nestjs/jwt": "^12.0.1",
+    "@nestjs/passport": "^12.0.0",
+    "@nestjs/platform-express": "^11.1.6",
+    "@nestjs/swagger": "^11.2.0",
+    "@nestjs/throttler": "6.7.1",
+    "@prisma/client": "^6.15.0",
+    "bcryptjs": "^3.0.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "helmet": "8.3.0",
+    "nodemailer": "^9.1.1",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.10",
+    "@nestjs/schematics": "^11.0.7",
+    "@nestjs/testing": "^11.1.6",
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.3.0",
+    "@types/nodemailer": "^8.0.1",
+    "@types/passport-jwt": "^4.0.1",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "prisma": "^6.15.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

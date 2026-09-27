@@ -1,0 +1,418 @@
+.customer-form-page {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.customer-form-page .breadcrumbs {
+  margin-bottom: 18px;
+}
+
+.customer-form-page .page-header {
+  margin-bottom: 28px;
+}
+
+.customer-form-page .page-header h1 {
+  margin-top: 8px;
+  font-size: clamp(30px, 3vw, 42px);
+  letter-spacing: -1.4px;
+}
+
+.customer-form-page .page-header p {
+  max-width: 680px;
+  margin-top: 9px;
+  color: #667f91;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.customer-form-card {
+  position: relative;
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+  border-color: #d8e6ef;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 22px 58px rgba(14, 53, 80, .09);
+}
+
+.customer-form-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 4px;
+  background: linear-gradient(90deg, #086ca9, #26a6db 56%, #8fd9f2);
+}
+
+.customer-form-card .entity-form {
+  display: grid;
+  gap: 0;
+}
+
+.customer-form-card .form-section-heading {
+  position: relative;
+  margin: 0;
+  padding: 26px 82px 19px 30px;
+  border-top: 1px solid #e7eef3;
+  background: linear-gradient(110deg, #f4f9fc 0%, #fbfdfe 62%, #fff 100%);
+}
+
+.customer-form-card .form-section-heading:first-child {
+  padding-top: 30px;
+  border-top: 0;
+}
+
+.customer-form-card .form-section-heading::after {
+  content: attr(data-step);
+  position: absolute;
+  top: 50%;
+  right: 30px;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #cce4f1;
+  border-radius: 12px;
+  color: #1682b9;
+  background: #eaf7fc;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .8px;
+  transform: translateY(-50%);
+}
+
+.customer-form-card .form-section-heading .eyebrow {
+  color: #0875b5;
+  font-size: 9px;
+}
+
+.customer-form-card .form-section-heading strong {
+  margin-top: 7px;
+  color: #17374e;
+  font-size: 15px;
+  letter-spacing: -.15px;
+}
+
+.customer-form-card .entity-form > label,
+.customer-form-card .entity-form > .form-grid,
+.customer-form-card .entity-form > .customer-type-selector,
+.customer-form-card .entity-form > .ford-relationship-selector,
+.customer-form-card .entity-form > .company-lookup-panel,
+.customer-form-card .entity-form > .company-representative-note,
+.customer-form-card .entity-form > .company-document-confirmation {
+  margin-right: 30px;
+  margin-left: 30px;
+}
+
+.customer-type-selector {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.customer-type-selector > span {
+  color: #28475e;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.customer-type-selector > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.customer-type-selector button {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 2px 11px;
+  min-height: 68px;
+  padding: 12px 15px;
+  border: 1px solid #d7e4ec;
+  border-radius: 12px;
+  color: #49677b;
+  background: #fbfdfe;
+  text-align: left;
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+
+.customer-type-selector button svg { grid-row: 1 / 3; color: #6f91a6; }
+.customer-type-selector button b { color: #24455b; font-size: 12px; }
+.customer-type-selector button small { color: #7c929f; font-size: 9px; }
+.customer-type-selector button:hover { border-color: #9bcce2; background: #f4fbfe; }
+.customer-type-selector button.is-active { border-color: #46a8d3; background: #eaf7fc; box-shadow: inset 0 0 0 1px rgba(21,132,185,.12); }
+.customer-type-selector button.is-active svg,
+.customer-type-selector button.is-active b { color: #0872aa; }
+
+.ford-relationship-selector {
+  display: grid;
+  gap: 8px;
+  margin-top: 19px;
+  padding: 16px;
+  border: 1px solid #d6e7ef;
+  border-radius: 14px;
+  background: linear-gradient(115deg, #f2f9fc, #fff 70%);
+}
+
+.ford-relationship-selector > span {
+  color: #28475e;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.ford-relationship-selector > small { color: #6d8797; font-size: 10px; line-height: 1.45; }
+
+.ford-relationship-selector > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ford-relationship-selector button {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 2px 9px;
+  min-height: 66px;
+  padding: 11px 12px;
+  border: 1px solid #d7e4ec;
+  border-radius: 11px;
+  color: #49677b;
+  background: #fff;
+  text-align: left;
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.ford-relationship-selector button svg { grid-row: 1 / 3; color: #6f91a6; }
+.ford-relationship-selector button b { color: #24455b; font-size: 11px; }
+.ford-relationship-selector button small { color: #7c929f; font-size: 9px; line-height: 1.3; }
+.ford-relationship-selector button:hover { border-color: #9bcce2; background: #f8fcfe; transform: translateY(-1px); }
+.ford-relationship-selector button.is-active { border-color: #46a8d3; background: #eaf7fc; box-shadow: inset 0 0 0 1px rgba(21,132,185,.12); }
+.ford-relationship-selector button.is-active svg,
+.ford-relationship-selector button.is-active b { color: #0872aa; }
+
+.company-lookup-panel {
+  display: grid;
+  gap: 9px;
+  margin-top: 20px;
+  padding: 17px;
+  border: 1px solid #cfe4ef;
+  border-radius: 13px;
+  background: linear-gradient(110deg, #eef8fc, #fbfdfe);
+}
+
+.company-lookup-panel > label { gap: 8px; }
+.company-lookup-panel > small { color: #688497; font-size: 9px; line-height: 1.45; }
+.field-with-action { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.field-with-action .secondary { min-width: 154px; min-height: 49px; }
+.company-lookup-status { padding: 10px 12px; border-radius: 9px; color: #9b6212; background: #fff6df; font-size: 10px; font-weight: 700; }
+.company-lookup-status.is-success { color: #247a50; background: #e7f6ed; }
+
+.customer-form-card .company-identity-grid {
+  grid-template-columns: 1.35fr 1fr .7fr;
+}
+
+.company-exempt-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #56758a;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.customer-form-card .entity-form .company-exempt-control input,
+.customer-form-card .entity-form .company-document-confirmation input {
+  width: 17px;
+  min-width: 17px;
+  height: 17px;
+  min-height: 17px;
+  margin: 0;
+  padding: 0;
+  accent-color: #0875b5;
+}
+
+.company-representative-note {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 15px 17px;
+  border: 1px solid #cfe4ef;
+  border-radius: 12px;
+  color: #1676a8;
+  background: #f2fafe;
+}
+
+.company-representative-note > span {
+  display: grid;
+  gap: 3px;
+}
+
+.company-representative-note b { color: #214a63; font-size: 11px; }
+.company-representative-note small { color: #668497; font-size: 9px; line-height: 1.45; }
+
+.customer-form-card .company-representative-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.customer-form-card .company-representative-grid .company-basis-field {
+  grid-column: 1 / -1;
+}
+
+.company-document-confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 0;
+  margin-bottom: 25px;
+  padding: 15px 17px;
+  border: 1px solid #cae3d5;
+  border-radius: 12px;
+  color: #365c4a;
+  background: #f0faf4;
+}
+
+.company-document-confirmation > span { display: grid; gap: 3px; }
+.company-document-confirmation b { color: #276144; font-size: 11px; }
+.company-document-confirmation small { color: #5e7d6d; font-size: 9px; line-height: 1.45; }
+
+.customer-form-card .entity-form > label {
+  margin-top: 22px;
+  margin-bottom: 20px;
+}
+
+.customer-form-card .entity-form > .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+  margin-top: 22px;
+  margin-bottom: 25px;
+}
+
+.customer-form-card .entity-form > label + .form-grid {
+  margin-top: 0;
+}
+
+.customer-form-card .entity-form label {
+  gap: 9px;
+  color: #28475e;
+  font-size: 11px;
+  letter-spacing: .05px;
+}
+
+.customer-form-card .entity-form input,
+.customer-form-card .entity-form select,
+.customer-form-card .entity-form textarea {
+  min-height: 49px;
+  padding: 12px 14px;
+  border-color: #cfdee8;
+  border-radius: 11px;
+  color: #17364d;
+  background: #f9fbfd;
+  font-size: 12px;
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+.customer-form-card .entity-form input:hover,
+.customer-form-card .entity-form select:hover,
+.customer-form-card .entity-form textarea:hover {
+  border-color: #accddd;
+  background: #fff;
+}
+
+.customer-form-card .entity-form input:focus,
+.customer-form-card .entity-form select:focus,
+.customer-form-card .entity-form textarea:focus {
+  border-color: #1683c0;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(22, 131, 192, .11);
+}
+
+.customer-form-card .entity-form input:disabled {
+  color: #8297a4;
+  background: #edf2f5;
+  cursor: not-allowed;
+}
+
+.customer-form-card .customer-address-region-grid {
+  grid-template-columns: .75fr 1.25fr .45fr 1fr;
+}
+
+.customer-form-card .customer-address-line-grid {
+  grid-template-columns: minmax(0, 1.7fr) minmax(120px, .55fr) minmax(0, 1fr);
+}
+
+.customer-form-card .login-notice {
+  margin: -7px 30px 20px;
+}
+
+.customer-form-card .privacy-note {
+  margin: 0 30px 26px;
+  padding: 15px 17px;
+  border: 1px solid #cde5f1;
+  border-radius: 12px;
+  color: #416d87;
+  background: linear-gradient(110deg, #edf8fd, #f8fcfe);
+  font-size: 10px;
+}
+
+.customer-form-card .form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  gap: 11px;
+  padding: 18px 30px;
+  border-top: 1px solid #dce8ef;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 -12px 32px rgba(15, 52, 77, .06);
+  backdrop-filter: blur(12px);
+}
+
+.customer-form-card .form-actions .primary,
+.customer-form-card .form-actions .secondary {
+  min-width: 155px;
+  min-height: 44px;
+}
+
+@media (max-width: 1080px) {
+  .customer-form-card .customer-address-region-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .customer-form-page .page-header h1 { font-size: 30px; }
+  .customer-form-card { border-radius: 17px; }
+  .customer-form-card .form-section-heading { padding: 22px 66px 17px 20px; }
+  .customer-form-card .form-section-heading:first-child { padding-top: 25px; }
+  .customer-form-card .form-section-heading::after { right: 20px; width: 34px; height: 34px; }
+  .customer-form-card .entity-form > label,
+  .customer-form-card .entity-form > .form-grid,
+  .customer-form-card .entity-form > .customer-type-selector,
+  .customer-form-card .entity-form > .ford-relationship-selector,
+  .customer-form-card .entity-form > .company-lookup-panel,
+  .customer-form-card .entity-form > .company-representative-note,
+  .customer-form-card .entity-form > .company-document-confirmation { margin-right: 20px; margin-left: 20px; }
+  .customer-form-card .entity-form > .form-grid,
+  .customer-form-card .customer-address-region-grid,
+  .customer-form-card .customer-address-line-grid,
+  .customer-form-card .company-identity-grid { grid-template-columns: 1fr; }
+  .customer-form-card .company-representative-grid { grid-template-columns: 1fr; }
+  .customer-form-card .company-representative-grid .company-basis-field { grid-column: auto; }
+  .customer-type-selector > div,
+  .ford-relationship-selector > div,
+  .field-with-action { grid-template-columns: 1fr; }
+  .field-with-action .secondary { width: 100%; }
+  .customer-form-card .login-notice { margin-right: 20px; margin-left: 20px; }
+  .customer-form-card .privacy-note { align-items: flex-start; margin-right: 20px; margin-left: 20px; }
+  .customer-form-card .form-actions { display: grid; grid-template-columns: 1fr; padding: 16px 20px; }
+  .customer-form-card .form-actions .primary,
+  .customer-form-card .form-actions .secondary { width: 100%; }
+}

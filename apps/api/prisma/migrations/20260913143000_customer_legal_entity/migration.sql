@@ -1,0 +1,7 @@
+ALTER TABLE `User`
+  ADD COLUMN `customerType` VARCHAR(12) NOT NULL DEFAULT 'INDIVIDUAL',
+  ADD COLUMN `cnpj` VARCHAR(14) NULL,
+  ADD COLUMN `tradeName` VARCHAR(191) NULL,
+  ADD COLUMN `stateRegistration` VARCHAR(30) NULL;
+
+CREATE UNIQUE INDEX `User_cnpj_key` ON `User`(`cnpj`);

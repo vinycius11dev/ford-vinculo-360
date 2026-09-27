@@ -1,0 +1,224 @@
+/*
+ * Ford Vínculo 360 — acabamento visual profissional
+ * Camada final do sistema de design: contraste, ritmo, profundidade e estados.
+ */
+:root {
+  --sidebar-width: 272px;
+  --ink-strong: #102a43;
+  --ink: #203b52;
+  --ink-muted: #61778a;
+  --surface: #ffffff;
+  --surface-soft: #f7fafc;
+  --surface-blue: #eef8fd;
+  --border-soft: #dce7ef;
+  --brand: #0878bd;
+  --brand-deep: #075487;
+  --brand-glow: rgba(8, 120, 189, .16);
+  --shadow-soft: 0 10px 30px rgba(16, 42, 67, .055);
+  --shadow-float: 0 18px 46px rgba(16, 42, 67, .12);
+}
+
+html { background: #edf3f7; }
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 84% -8%, rgba(79, 177, 226, .11), transparent 28rem),
+    linear-gradient(180deg, #f6f9fb 0%, #edf3f7 100%);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background:
+    radial-gradient(circle at 16% 4%, rgba(31, 144, 211, .18), transparent 22rem),
+    linear-gradient(180deg, #061b34 0%, #082947 52%, #061b32 100%);
+  border-right: 1px solid rgba(143, 212, 246, .12);
+  box-shadow: 18px 0 45px rgba(7, 30, 51, .12);
+}
+.sidebar-brand {
+  height: 82px;
+  padding-inline: 26px;
+  border-bottom-color: rgba(160, 218, 246, .12);
+}
+.sidebar-brand img { width: 182px; }
+.dealer-switch {
+  margin: 18px 16px 8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .075);
+  border-color: rgba(151, 214, 242, .16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.dealer-mark {
+  border-radius: 10px;
+  background: linear-gradient(145deg, #1b95d1, #0a5c98);
+  box-shadow: 0 6px 16px rgba(4, 93, 153, .35);
+}
+.sidebar nav { padding: 10px 13px; }
+.nav-group { margin: 16px 0; }
+.nav-group > span { color: #7195ae; padding-inline: 14px; }
+.nav-group a,
+.sidebar-bottom > a {
+  height: 43px;
+  margin: 3px 0;
+  border-radius: 11px;
+  font-size: 12.5px;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.nav-group a:hover,
+.sidebar-bottom > a:hover { transform: translateX(2px); background: rgba(66, 175, 229, .12); }
+.nav-group a.active {
+  background: linear-gradient(90deg, rgba(31, 154, 222, .22), rgba(31, 154, 222, .06));
+  box-shadow: inset 3px 0 #43b8f0, inset 0 1px 0 rgba(255,255,255,.05);
+}
+.support-card {
+  border-radius: 15px;
+  padding: 16px;
+  background: linear-gradient(145deg, rgba(17, 93, 143, .9), rgba(8, 48, 81, .92));
+  border-color: rgba(132, 208, 244, .2);
+}
+.support-card button { border-radius: 9px; min-height: 36px; }
+
+.main-area {
+  width: calc(100% - var(--sidebar-width));
+  margin-left: var(--sidebar-width);
+}
+.topbar {
+  height: 78px;
+  padding-inline: 38px;
+  background: rgba(255,255,255,.88);
+  border-bottom-color: rgba(211, 225, 235, .86);
+  box-shadow: 0 5px 24px rgba(26, 67, 94, .045);
+}
+.global-search {
+  height: 42px;
+  border-radius: 12px;
+  background: #f5f9fb;
+  border-color: #d9e5ed;
+}
+.global-search:focus-within { border-color: #83c3e5; box-shadow: 0 0 0 4px var(--brand-glow); }
+.icon-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #f7fafc;
+  border-color: #dce7ef;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.icon-button:hover { transform: translateY(-1px); background: #eef8fd; box-shadow: 0 6px 14px rgba(8, 120, 189, .12); }
+.user-menu { gap: 12px; padding-left: 20px; }
+.avatar { box-shadow: 0 7px 16px rgba(8, 75, 122, .22); }
+
+.page-content { max-width: 1680px; padding: 38px 42px 64px; }
+.page-header { margin-bottom: 30px; }
+.page-header h1 {
+  color: var(--ink-strong);
+  font-size: clamp(28px, 2.3vw, 36px);
+  line-height: 1.12;
+  letter-spacing: -1.25px;
+}
+.page-header p { color: var(--ink-muted); font-size: 13px; }
+.eyebrow { color: #1484bd; letter-spacing: 1.65px; }
+
+.card,
+.stat-card,
+.segment-card,
+.campaign-card {
+  border-color: var(--border-soft);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+}
+.card { padding: 25px; }
+.card:hover { box-shadow: 0 14px 34px rgba(16, 42, 67, .08); }
+.stats-grid { gap: 18px; }
+.stat-card { padding: 20px; min-height: 118px; }
+.stat-icon { border-radius: 12px; }
+.stat-copy strong { color: var(--ink-strong); font-size: 23px; }
+.stat-copy > span { color: #6f8495; font-size: 10px; letter-spacing: .15px; }
+.stat-more { color: #9bb0be; }
+.primary,
+.secondary {
+  min-height: 42px;
+  border-radius: 11px;
+  font-size: 11px;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+}
+.primary {
+  background: linear-gradient(135deg, #0a83c8, #075f9b);
+  box-shadow: 0 9px 20px rgba(7, 102, 167, .18);
+}
+.primary:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(7, 102, 167, .25); }
+.secondary { background: rgba(255,255,255,.88); border-color: #d5e3ec; }
+.secondary:hover { transform: translateY(-1px); }
+
+.table-row { min-height: 70px; border-top-color: #e8f0f5; }
+.table-row:not(.table-head):hover { background: #f6fbfe; }
+.table-head { background: #f5f9fb; border-top: 0; border-bottom: 1px solid #e2ebf1; }
+.row-action { border-radius: 9px; transition: all .18s ease; }
+.row-action:hover { color: var(--brand); border-color: #9ccde7; background: #eef8fd; }
+.toolbar { gap: 12px; }
+.toolbar input, .toolbar select, .entity-form input, .entity-form select, .entity-form textarea {
+  border-radius: 11px;
+  border-color: #d6e3eb;
+  background: #fbfdfe;
+}
+.toolbar input:focus, .toolbar select:focus, .entity-form input:focus, .entity-form select:focus, .entity-form textarea:focus {
+  border-color: #72b7db;
+  box-shadow: 0 0 0 4px rgba(8, 120, 189, .1);
+}
+
+.settings-grid { gap: 18px; }
+.settings-card {
+  min-height: 112px;
+  padding: 21px;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #fff, #fbfdfe);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.settings-card:hover { transform: translateY(-2px); border-color: #b6d9eb; box-shadow: 0 15px 30px rgba(16, 42, 67, .09); }
+.settings-card > svg { color: #87a4b7; }
+.settings-card h3 { color: var(--ink-strong); font-size: 14px; }
+.settings-card p { color: #718697; font-size: 11px; }
+.operation-card { border-radius: 20px; box-shadow: var(--shadow-soft); }
+.operation-heading h2 { color: var(--ink-strong); }
+
+.campaign-card { overflow: hidden; }
+.campaign-cover { height: 164px; }
+.campaign-body { padding: 21px; }
+.campaign-body h2 { color: var(--ink-strong); font-size: 17px; }
+.campaign-body > p { font-size: 10px; line-height: 1.6; }
+.campaign-metrics { margin-inline: -21px; }
+
+.modal-backdrop { background: rgba(3, 18, 32, .62); backdrop-filter: blur(8px); }
+.modal-card {
+  width: min(620px, 100%);
+  padding: 32px;
+  border: 1px solid rgba(190, 220, 236, .7);
+  border-radius: 22px;
+  box-shadow: var(--shadow-float);
+}
+.modal-card h2 { font-size: 25px; letter-spacing: -.7px; }
+.modal-close { border-radius: 10px; transition: all .18s ease; }
+.modal-close:hover { background: #e8f4fa; color: var(--brand); transform: rotate(4deg); }
+
+.empty-card { border-color: #bdd6e4; background: rgba(255,255,255,.68); }
+.insight-card { border-radius: 18px; box-shadow: var(--shadow-soft); }
+.vehicle-hero, .admin-banner, .loyalty-hero { box-shadow: 0 18px 38px rgba(6, 39, 68, .15); }
+
+@media (max-width: 1200px) {
+  .page-content { padding-inline: 30px; }
+}
+@media (max-width: 900px) {
+  .main-area { width: 100%; margin-left: 0; }
+  .topbar { padding-inline: 24px; }
+  .page-content { padding: 30px 24px 52px; }
+}
+@media (max-width: 640px) {
+  .topbar { height: 68px; padding-inline: 16px; }
+  .page-content { padding: 24px 15px 44px; }
+  .page-header h1 { font-size: 27px; }
+  .card { padding: 20px; }
+  .modal-card { padding: 26px 20px; border-radius: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
