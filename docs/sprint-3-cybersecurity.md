@@ -1,14 +1,14 @@
 # Sprint 3 — Cibersegurança e privacidade
 
 **Projeto:** Ford Vínculo 360  
-**Revisão:** 27/09/2026  
+**Revisão:** 28/09/2026
 **Escopo:** código e artefatos versionados neste workspace. Esta entrega não é pentest, certificação, parecer jurídico nem evidência de um ambiente de produção.
 
 ## Parecer executivo
 
 O projeto tem controles de autenticação, sessão, autorização, validação, auditoria, proteção de API e automação DevSecOps. Esta revisão também corrige falhas de autorização entre concessionárias: ordens de serviço consultam o escopo do veículo, leads são listados e alterados apenas pela unidade autorizada, e uma troca só encerra a titularidade ativa do cliente da venda. Agentes não podem emitir pontos manualmente. No mobile, o perfil de produção exige endpoint HTTPS explícito e bloqueia o envio de credenciais se a configuração estiver ausente ou insegura. Links sensíveis de convite/reset também não são persistidos na fila de e-mail, e os logs HTTP não incluem payload, query, cookie ou identificadores pessoais.
 
-**Estado da entrega:** alterações publicadas em `main`; o CI completo passou em 27/09/2026 na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276), commit `e326b7b`. Passaram build/typecheck, testes API/mobile, SCA Node/Python, Semgrep, Gitleaks e self-test criptográfico com fixture sintética. **Ainda não está pronta para produção.** Permanecem pendências operacionais: branch protection e canal privado de divulgação indisponíveis no plano atual para este repositório privado, deploy, saneamento histórico autorizado, cofre/destino externo de backup, dashboard/alertas, revisão LGPD pelo controlador e avaliação independente.
+**Estado da entrega:** código e relatório publicados em main; o CI de segurança mais recente conferido passou em 28/09/2026 na execução [36368560969](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36368560969), commit 6e8a418. O repositório está público e acessível sem convite. A branch main agora exige os quatro jobs de segurança, inclusive para administradores, e bloqueia force push e exclusão; ainda faltam deploy, evidência de dashboard/alertas, restore real, cofre/cópia externa e decisões do controlador sobre LGPD. A entrega acadêmica está documentada; não há declaração de prontidão de produção.
 
 | Frente | Estado | Evidência e limite |
 |---|---|---|
@@ -26,7 +26,7 @@ O projeto tem controles de autenticação, sessão, autorização, validação, 
 
 | Atividade e peso | Evidências desta entrega | Estado e itens operacionais pendentes |
 |---|---|---|
-| 1. Pipeline DevSecOps Integrado (3,0) | Workflow com build/typecheck, testes de segurança, SCA Node/Python, Semgrep e Gitleaks; execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276). | CI e scanners estão entregues. Proteção obrigatória da branch e deploy/rollback dependem de plano e ambiente compatíveis. |
+| 1. Pipeline DevSecOps Integrado (3,0) | Workflow com build/typecheck, testes de segurança, SCA Node/Python, Semgrep e Gitleaks; execução [36368560969](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36368560969). | CI e scanners estão entregues. A branch pública exige os quatro checks de segurança; deploy e rollback dependem do ambiente de execução. |
 | 2. Segurança em Código e Infraestrutura (2,5) | Autenticação e escopo API, correções de autorização, armazenamento seguro e política HTTPS mobile, criptografia local de backup, exemplos técnicos e testes. | Não existe integração MQTT/IaC no projeto. O endpoint HTTPS real do EAS, saneamento histórico e ensaio operacional continuam dependentes do responsável pelo ambiente. |
 | 3. Observabilidade, Monitoramento e Resposta (2,0) | Logs JSON sem payload/segredos, indicadores e limites propostos, painel a configurar e fluxo documentado de resposta a incidentes. | Não há coletor, dashboard, alertas calibrados nem simulado de incidente em ambiente real; não apresentamos telas ou logs sintéticos como evidência de produção. |
 | 4. Compliance, Riscos e Segurança Contínua (2,5) | STRIDE, referências OWASP, checklist LGPD, análise de riscos, workflow semanal, procedimento seguro de backup e saneamento. | Conformidade formal, bases legais/retenção, aprovação do controlador, revisão independente e comprovantes operacionais precisam ser fornecidos pela organização. |
@@ -61,14 +61,14 @@ flowchart LR
   M --> F
 ```
 
-O workflow está definido para `push`, `pull_request`, execução manual e agenda semanal. Permissões do workflow limitadas a `contents: read`; actions fixadas por SHA. O repositório GitHub é privado, com alertas de vulnerabilidade e correções automáticas do Dependabot habilitados; as atualizações semanais têm cooldown de sete dias. As permissões padrão do `GITHUB_TOKEN` estão limitadas a leitura e o token não pode aprovar PRs. A conta atual não permite branch protection nesse repositório privado; o GitHub exige plano Pro ou repositório público. O repositório permanece privado. Não há CD/deploy, verificação pós-deploy nem rollback configurados.
+O workflow está definido para push, pull_request, execução manual e agenda semanal. Permissões do workflow são limitadas a leitura; actions estão fixadas por SHA. O repositório está público, e as atualizações semanais do Dependabot estão configuradas. Em 28/09/2026, a branch main foi protegida com os quatro jobs do workflow como checks obrigatórios, histórico linear, bloqueio de force push e exclusão, inclusive para administradores. A regra não exige aprovação de outra pessoa. Não há CD/deploy, verificação pós-deploy nem rollback configurados.
 
 | Verificação | Configuração atual | O que comprova / limite |
 |---|---|---|
 | Build e tipos | `pnpm check` | Build API/web e typecheck mobile; não é teste dinâmico de segurança. |
 | Testes API/mobile/backup | Testes de autorização API, transporte TLS mobile, contratos/sessão e self-test AES-GCM com fixture sintética | Não usam banco real; não substituem testes em aparelho nem a matriz BOLA/BFLA integral. |
 | SCA Node | `pnpm audit --audit-level high` | Passou na execução final [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276); inclui dependências de produção e desenvolvimento e varia com o advisory registry. |
-| SCA Python | `pip-audit -r apps/ml/requirements.txt` | Passou na execução final; audita dependências declaradas. Ainda falta lockfile Python para reprodutibilidade. |
+| SCA Python | pip-audit audita apps/ml/requirements.txt e apps/ml/requirements-training.txt no CI. | O ambiente de treino usa versões fixadas no segundo arquivo; a execução 36368560969 passou. |
 | SAST | Semgrep CLI 1.178.0, `semgrep scan --config p/default --error --metrics=off --oss-only` | Passou na execução final, sem findings bloqueadores. |
 | Segredos | Gitleaks 8.30.1 com checksum SHA-256 e histórico completo | Passou na execução final. Uma exceção exata documenta o texto público dos parâmetros scrypt no manifesto; não é credencial. |
 | Dependabot | `.github/dependabot.yml` | Alertas e correções automáticas ativos; atualizações semanais de GitHub Actions, npm e pip com cooldown de sete dias. |
@@ -147,6 +147,12 @@ O middleware escreve JSON após cada resposta, incluindo guards/erros HTTP: `eve
 {"event":"audit.domain_change","action":"TEAM_INVITATION_CREATE","entityType":"UserInvitation","requestId":"e45de78c-3d2a-4e68-88dc-f691a901d094"}
 ```
 
+### Print do painel demonstrativo
+
+![Painel demonstrativo de segurança com métricas e eventos sintéticos](screenshots/25_cyber_dashboard_demo.png)
+
+O [arquivo HTML do painel](cyber-dashboard-demo.html) acompanha o print e mostra o desenho de indicadores, alerta, eventos sanitizados e resposta. Os valores são **sintéticos** e servem à apresentação acadêmica; o painel não recebe telemetria de produção.
+
 | Painel/indicador a configurar | Gatilho inicial proposto | Resposta |
 |---|---|---|
 | API: 5xx e disponibilidade | 5xx > 5% em 5 min ou health check indisponível | Acionar responsável, comparar release, limitar tráfego/reverter se regressão. |
@@ -159,7 +165,7 @@ O middleware escreve JSON após cada resposta, incluindo guards/erros HTTP: `eve
 | Backup | Job ausente/falha ou restore fora do RTO | Suspender release de dados reais até obter backup cifrado e restore comprovado. |
 | IoT | Sem painel enquanto não houver integração | Antes de entrar no escopo, definir métricas de conexão, certificados, ACL, replay e volume por dispositivo. |
 
-Os limites acima são **proposta**, não estão configurados nem calibrados por tráfego real. Implementar coletor central, retenção, controle de acesso e dashboard (API, autenticação, mobile, ML, mensagens e backup); anexar screenshots e um conjunto real de logs sanitizados após homologação. Não incluir e-mail, CPF, VIN completo, token, corpo de mensagem ou query string nos painéis.
+Os limites acima são **proposta**, não estão configurados nem calibrados por tráfego real. O print demonstra o formato do painel; ainda faltam coletor central, retenção, acesso, métricas automáticas e alertas operacionais. Após homologação, substituir a demonstração por captura e logs reais sanitizados. Não incluir e-mail, CPF, VIN completo, token, corpo de mensagem ou query string nos painéis.
 
 ### Resposta a incidentes
 
@@ -179,63 +185,120 @@ flowchart TD
 
 Operação a preparar: plantonista/substituto, contatos do controlador/encarregado, severidade, canal seguro, preservação de evidências, processo de rotação de credenciais, comunicação, restauração e simulado. A ANPD informa comunicação pelo controlador à Autoridade e aos titulares em até **3 dias úteis** para incidente que possa causar risco ou dano relevante, conforme a Resolução CD/ANPD nº 15/2024; analisar exceções/regras específicas com o jurídico. Agentes de tratamento de pequeno porte podem ter prazo em dobro conforme Resolução CD/ANPD nº 2/2022 quando elegíveis; não presumir enquadramento. A ANPD também informa obrigação de manter registro dos incidentes por pelo menos cinco anos. Fontes oficiais: [orientação sobre comunicação de incidente](https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis), [Resolução nº 2/2022](https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd/resolucao-cd-anpd-no-2-de-27-de-janeiro-de-2022) e [notícia sobre o regulamento de comunicação](https://www.gov.br/anpd/pt-br/assuntos/noticias/anpd-aprova-o-regulamento-de-comunicacao-de-incidente-de-seguranca).
 
-## Atividade 4 (2,5) - Compliance, Riscos e Segurança Contínua
+## Atividade 4 (2,5) — Compliance, Riscos e Segurança Contínua
 
-O planejamento está alinhado como referência com [OWASP ASVS 5.0.0](https://owasp.org/projects/asvs), [OWASP API Security Top 10 — 2023](https://api-security.owasp.org/editions/2023/en/0x00-header/) e [OWASP Mobile Top 10 — 2024](https://owasp.org/projects/mobile-top-10). Isso não equivale a declarar conformidade: ainda faltam testes sistemáticos e evidência independente.
+### Método e estado da avaliação
 
-| STRIDE | Cenário | Controles observados | Lacuna/próxima verificação |
+Esta é uma revisão técnica do projeto acadêmico, datada de 28/09/2026. A escala de risco residual abaixo é qualitativa: alto exige ação antes de dados reais; médio exige verificação no ambiente; baixo indica exposição limitada no escopo analisado. “Implementado” quer dizer código ou configuração versionada com evidência indicada; “Planejado” não significa executado; “Decisão externa” depende do controlador, encarregado ou ambiente de operação. Nenhum mapeamento OWASP equivale a certificação.
+
+### Revisão final de riscos: STRIDE e DevSecOps
+
+| ID / classe | Cenário e ativo | Controle e evidência já existentes | Residual, responsável e ação verificável |
 |---|---|---|---|
-| Spoofing | Roubo/reuso de senha, refresh, convite ou reset | bcrypt, tokens curtos/aleatórios, hash de refresh/reset/convite, rotação, expiração, lockout atômico e throttling | MFA, credential stuffing e teste concorrente do lockout em banco isolado. |
-| Tampering | Alterar VIN, papel, concessionária, OS, troca ou estado de negócio | DTOs, guards, transações, escopo derivado do usuário e checagem de titularidade; pontos manuais limitados por papel | Testes negativos novos passaram nos fluxos corrigidos; completar revisão em todas as rotas. |
-| Repudiation | Negar ação sobre dado/conta | Audit log de domínio e request ID | Centralização, retenção, controle de acesso e proteção contra alteração dos logs. |
-| Information disclosure | Acesso a outro cliente/unidade, arquivo ou credencial | Escopo por papel, restrição de resposta, cookie HttpOnly/Secure, redação de mensagens/logs | Saneamento histórico, criptografia de backup/volume e revisão do OpenAPI/respostas. |
-| Denial of service | Brute force, upload ou chamadas custosas | Rate limit, tamanho de upload e timeouts | Limite compartilhado entre réplicas; carga/abuso em ambiente isolado. |
-| Elevation of privilege | Usuário agir como gerente/admin ou acessar outro escopo | Papel carregado no servidor, `RolesGuard` e filtros de escopo | Matriz BOLA/BFLA e revisão periódica de permissões. |
+| R1 / Spoofing | Reuso de senha, JWT, refresh token ou link de convite/reset. | bcrypt, JWT curto, sessão revogável, refresh rotativo guardado por hash, expiração, lockout e limites de autenticação; módulos de autenticação e testes de sessão no CI. | **Médio — API.** Validar lockout concorrente em banco isolado e considerar MFA antes de dados reais. |
+| R2 / Tampering | Alterar VIN, papel, concessionária, ordem de serviço, lead ou titularidade fora do próprio escopo. | DTOs, transações, identidade do servidor e filtros de escopo; correções em OS, leads e trocas; seis testes negativos API no CI. | **Médio — API.** Completar matriz endpoint × papel × objeto e testar campos de resposta/escrita em banco descartável. |
+| R3 / Repudiation | Negar alteração ou acesso crítico. | Audit log de domínio e request ID; interceptor registra método, rota, status e duração sem payload ou query. | **Médio — operações.** Centralizar logs, limitar acesso, definir retenção e testar recuperação da trilha. |
+| R4 / Information disclosure | Expor PII ou links de credencial por log, outbox, acesso entre unidades ou dumps antigos. | Escopo por papel/unidade, cookie HttpOnly/Secure, outbox redigida e backup local cifrado com AES-256-GCM. | **Alto para histórico — operações/controlador.** Sanear registros/backups antigos com autorização, preservar trilha e comprovar cifragem do banco/volume. |
+| R5 / Denial of service | Brute force, upload excessivo, chamadas ML ou envio abusivo. | Throttling, limites de upload, timeout e fallback do cliente ML. | **Médio — API/operações.** O limite é por instância; validar limite distribuído e carga antes de escalar. |
+| R6 / Elevation of privilege | Cliente ou agente agir como gerente/admin ou consultar outra concessionária. | RolesGuard, papel do usuário autenticado, filtros de escopo e proibição de pontos manuais pelo agente. | **Médio — API.** Auditar rotas sem metadados de papel e repetir testes de autorização por função. |
+| R7 / Supply chain e configuração | Dependência vulnerável, segredo versionado ou alteração da branch sem revisão. | Workflow com SCA Node/Python, Semgrep, Gitleaks, actions fixadas por SHA e Dependabot semanal; CI verde na execução 36368560969. | **Médio — mantenedor.** Em 28/09/2026 o repositório é público e main exige quatro checks de segurança, inclusive para administradores. A regra não exige aprovação de outra pessoa; adotar revisão por pares quando houver equipe. |
+| R8 / Recuperação | Backup adulterado, exposto ou impossível de restaurar. | Script de backup cifrado, ACL restrita e self-test de AES-GCM com fixture sintética. | **Alto — operações.** Faltam agenda, cofre, cópia externa e restore real supervisionado; registrar RPO/RTO com dono do serviço. |
+| R9 / Integração ML | Serviço indisponível ou resposta externa inválida. | URL configurável, timeout, validação e fallback com identificação da origem do score. | **Médio — API/ML.** Ao sair do loopback, usar rede privada, autenticação de serviço e TLS. |
+| R10 / Privacidade | Finalidade, base legal, retenção, fornecedor ou uso de score sem aprovação. | Módulos de privacidade, minimização de logs e dados sintéticos para treino. | **Decisão externa — controlador/encarregado.** Aprovar inventário de dados, avisos, bases legais, prazos, contratos e eventual RIPD. |
 
-### Matriz de cobertura da rubrica
+A prioridade residual é uma hipótese de planejamento, não aceitação formal de risco. Para cada achado futuro, o registro operacional deve conter ativo, cenário, severidade, responsável, prazo, evidência de correção e decisão de risco residual.
 
-| Referência | Cobertura nesta entrega | Evidência | Falta para fechar |
-|---|---|---|---|
-| OWASP ASVS | Baseline de identidade, sessão, validação, autorização, configuração, logs e proteção de dados | Tabelas STRIDE/controles e referências acima | Checklist ASVS rastreado por requisito, testes e revisão independente. |
-| API Security Top 10 | Baseline para BOLA/BFLA, autenticação, consumo de recursos, configuração e APIs externas | Guards, limites, CORS, validação e testes negativos de escopo | Ampliar testes para todas as rotas e limites distribuídos. |
-| Mobile Top 10 | SecureStore, access token em memória e bloqueio de HTTP no perfil de produção | Código mobile, EAS e testes de transporte | Cadastrar URL HTTPS no EAS, gerar build assinado e revisar deep links/proxy em dispositivo. |
-| LGPD | Minimização/escopo, auditoria e fluxos de privacidade previstos | `docs/security-lgpd.md`, módulos de privacidade e este relatório | Controlador/encarregado: finalidade/base legal, retenção, contratos, direitos e RIPD quando aplicável. |
-| DevSecOps | CI completo passou | `.github/workflows/security.yml`, `.github/dependabot.yml`, execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276) | Branch protection requer plano GitHub compatível para este repositório privado; configurar release/deploy e revisar achados futuros. |
+### Mapeamento OWASP ASVS 5.0.0
 
-### LGPD, retenção e segurança de infraestrutura
+O ASVS fornece requisitos técnicos de verificação. Esta tabela identifica os domínios pertinentes e a evidência do piloto; não afirma que todos os requisitos de um nível ASVS foram avaliados.
 
-O sistema trata dados de conta/contato, sessão e relacionamento com veículos. VIN, placa e histórico devem ser classificados segundo contexto e possibilidade de associação a pessoa; não presumir anonimização. O código aplica escopo de acesso e auditoria; os scripts agora cifram backups locais em AES-256-GCM e restringem a ACL. O repositório não comprova cifragem do banco/disco nem destino externo de backup. Antes de dados reais, guardar a frase secreta em cofre aprovado, estabelecer cópia externa e retenção, comprovar restore supervisionado e tratar os dumps históricos em claro.
-
-Antes da operação, o controlador e o encarregado devem validar finalidade/base legal por fluxo, minimização, retenção, compartilhamento com concessionárias/fornecedores, direitos dos titulares, contratos e necessidade de RIPD. A equipe técnica não determina sozinha a base legal nem declara conformidade jurídica.
-
-
-### Evidências desta revisão e checklist
-
-| Evidência | Estado nesta revisão | Observação |
+| Domínio | Evidência no projeto | Estado e verificação faltante |
 |---|---|---|
-| Revisão de código | Feita | Inclui autenticação, fila de mensagens, middleware de logs, upload, configuração e workflow. |
-| Build/typecheck | Passou no CI em 27/09/2026 | Build API/web e typecheck mobile; Vite ainda emite aviso de bundle JavaScript acima de 500 kB. Não envolve banco ou envio real de e-mail. |
-| SCA Node | `pnpm audit --audit-level high` passou no CI | Nenhuma vulnerabilidade de severidade alta ou crítica conhecida no registro consultado nessa execução. |
-| SCA Python | `pip-audit -r apps/ml/requirements.txt` passou no CI | Sem vulnerabilidades conhecidas nas dependências declaradas; ainda falta lockfile para reprodutibilidade. |
-| Semgrep | Passou no CI em 27/09/2026 | 507 regras em 256 arquivos; sem findings bloqueadores. |
-| Gitleaks | Passou no CI em 27/09/2026 | Varredura de histórico completo. O único finding era a descrição scrypt, liberada por fingerprint exato em `.gitleaksignore`. |
-| Testes CI | Todos passaram na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276) | Build/typecheck, testes API/mobile, auditorias, Semgrep, Gitleaks e fixture criptográfica; não equivale a QA em aparelho. |
-| Lint | Não executado nesta revisão | ESLint 9 local não encontra configuração eslint.config.*; lint não é check obrigatório na pipeline atual. |
-| Exceção Gitleaks | Um achado `generic-api-key` em e9065b9 foi verificado como texto público dos parâmetros scrypt, não credencial | O fingerprint exato está em .gitleaksignore; o manifesto registra os mesmos parâmetros em campos separados. |
-| DB/SMTP, backup/restore e saneamento | Não executados | Não conectei nem alterei banco, não gerei backup real, não enviei e-mails e não apliquei saneamento. |
-| Testes de segurança API/mobile | 6 testes negativos de API, 3 de transporte TLS mobile e 13 de sessão/contrato passaram localmente | Execução com mocks; não substitui validação em banco efêmero ou dispositivo físico. |
-| Dashboard/prints/pentest | Não disponíveis | Gerar métricas, screenshots e logs reais sanitizados em homologação; pentest independente ainda não realizado. |
+| Arquitetura e lógica de negócio | Separação API, mobile, web e ML; análise STRIDE R1–R10; escopo de cliente/concessionária. | **Parcial:** revisar ameaças por operação crítica e registrar revisão independente. |
+| Autenticação e sessão | bcrypt, JWT de 15 minutos, refresh rotativo e revogação, hash dos links de reset/convite. | **Implementado no escopo testado:** ampliar teste concorrente de lockout e avaliar MFA. |
+| Autorização | RolesGuard, CurrentUser e filtros de escopo, seis testes negativos de API. | **Parcial:** cobrir matriz completa de rota × papel × objeto/campo. |
+| Validação, API e arquivos | ValidationPipe, DTOs, limites e assinatura/MIME de upload. | **Parcial:** revisar campos retornados/escritos e contratos de erro de todas as rotas. |
+| Criptografia e comunicação | Hashes de credencial, backup AES-256-GCM, SecureStore e exigência de HTTPS no perfil mobile de produção. | **Parcial:** URL HTTPS real, cofre de chaves, cifragem de volume/DB e comunicação API–ML no ambiente escolhido. |
+| Configuração, dados, logs e erros | Helmet, CORS exato, validação de configuração, logs sem payload e outbox redigida. | **Parcial:** coletor, retenção, proteção externa dos logs e revisão de respostas OpenAPI. |
 
-### Checklist de encerramento
+### OWASP API Security Top 10 — 2023
 
-- [x] Workflow DevSecOps, build/typecheck, testes API/mobile, SCA, SAST e detecção de segredos; CI completo verde na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276), commit `e326b7b`.
-- [x] Endurecimento de API, sessão, HTTPS/CORS, upload, logs, outbox de mensagens, autorização entre concessionárias e mobile.
-- [x] STRIDE, referências OWASP, checklist LGPD, plano de observabilidade/resposta e baseline futuro de IoT documentados.
-- [x] Backup local cifrado, restore isolado e saneador histórico em dry-run por padrão; sem conexão ou alteração de dados reais.
-- [ ] Configurar branch protection (requer plano compatível), release/deploy, smoke test e rollback.
-- [ ] Cadastrar URL HTTPS real no EAS, assinar o app e validar em dispositivo; ampliar testes BOLA/BFLA em ambiente isolado.
-- [ ] Agendar restore supervisionado e saneamento histórico autorizado; decidir o tratamento dos dumps antigos em claro.
-- [ ] Implantar cifragem do banco/volume, cofre e cópia externa de backup, retenção, coletor, dashboard e alertas; anexar evidências reais sanitizadas.
-- [ ] Obter validação do controlador/encarregado/jurídico e avaliação independente antes da produção.
+| Categoria | Aplicação e evidência | Estado / ação |
+|---|---|---|
+| API1 BOLA | Escopo por VIN, titular e concessionária em serviços; testes negativos das correções. | **Parcial:** ampliar casos para todas as rotas com identificador. |
+| API2 Broken Authentication | JWT curto, sessão, refresh rotativo, lockout e reset por hash. | **Parcial:** testar credenciais comprometidas e MFA quando houver usuários reais. |
+| API3 Broken Object Property Level Authorization | DTOs com whitelist e filtros de escopo protegem parte da entrada/saída. | **Parcial:** revisar exposição e alteração campo a campo por papel. |
+| API4 Unrestricted Resource Consumption | Rate limit, upload de até 5 MB, timeout para ML. | **Parcial:** limites distribuídos, custo de envio e carga em homologação. |
+| API5 Broken Function Level Authorization | RolesGuard e restrições por função. | **Parcial:** inventário e testes de todas as funções administrativas. |
+| API6 Sensitive Business Flows | Regras de domínio e limites protegem autenticação/upload. | **Parcial:** testar repetição e abuso de agenda, troca, campanha, pontos e voucher. |
+| API7 SSRF | O destino ML é de configuração, não de URL fornecida diretamente pelo usuário no fluxo revisto. | **Exposição limitada observada:** restringir tráfego de saída e proibir destinos arbitrários em integrações futuras. |
+| API8 Security Misconfiguration | Helmet, CORS, validação de produção e workflow restrito. | **Parcial:** main agora está protegida; rever Swagger/health e a configuração do deploy real. |
+| API9 Improper Inventory Management | Rotas versionadas em /api/v1 e Swagger. | **Parcial:** inventariar hosts/versões expostos e remover rotas obsoletas. |
+| API10 Unsafe Consumption of APIs | ML com timeout, validação de resposta e fallback; SMTP por provider. | **Parcial:** autenticação/TLS de serviço, validação do fornecedor e observabilidade externa. |
 
-**Conclusão:** as correções de autorização API, transporte mobile, operação de backup cifrado, saneamento controlado e pipeline foram publicadas no commit `e326b7b`; o CI completo passou na execução [36349554276](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36349554276). Isso valida build, testes e scanners nesta revisão, mas não certifica produção. Seguem pendentes URL HTTPS real do EAS, dashboard/alertas, saneamento autorizado e tratamento dos backups históricos em claro, restore supervisionado, cofre/cópia externa, deploy seguro, revisão formal LGPD e avaliação independente. A proteção de `main` e a divulgação privada de vulnerabilidades exigem um plano compatível enquanto o repositório permanecer privado.
+### OWASP Mobile Top 10 — 2024
+
+| Categoria | Controle observado | Estado / ação |
+|---|---|---|
+| M1 Improper Credential Usage | Refresh token em SecureStore e access token em memória. | **Implementado no fluxo revisado;** reavaliar SDKs adicionados. |
+| M2 Inadequate Supply Chain Security | Lockfile, auditoria Node, Dependabot e actions fixadas por SHA. | **CI configurado;** triar alertas e guardar decisão. |
+| M3 Insecure Authentication/Authorization | Sessões e autorização validadas no backend; testes mobile/contrato. | **Parcial:** validar fluxos em dispositivo e papéis no servidor. |
+| M4 Insufficient Input/Output Validation | API usa DTOs/ValidationPipe e escopo. | **Parcial:** ampliar entradas malformadas e campos excessivos. |
+| M5 Insecure Communication | Perfil de produção exige URL HTTPS e bloqueia requests inseguros. | **Parcial:** URL real e validação em aparelho; o APK debug de emulador usa HTTP local. |
+| M6 Inadequate Privacy Controls | Fluxos de privacidade e minimização de logs. | **Decisão externa:** controlador valida finalidade, aviso e direitos. |
+| M7 Insufficient Binary Protections | APK debug existe para demonstração. | **Pendente para release:** assinatura/distribuição e revisão do binário final. |
+| M8 Security Misconfiguration | Perfil de produção valida endpoint; configuração de desenvolvimento é distinta. | **Parcial:** revisar variáveis, deep links e logs do build final. |
+| M9 Insecure Data Storage | Refresh em armazenamento seguro e access em memória. | **Parcial:** revisar caches, logs, screenshots e backup do dispositivo. |
+| M10 Insufficient Cryptography | TLS e armazenamento seguro dependem das bibliotecas da plataforma; backup AES-GCM no servidor. | **Parcial:** revisar chaves e transporte no ambiente de produção. |
+
+### LGPD, dados pessoais e telemetria
+
+O vínculo entre conta, VIN, placa, histórico e concessionária pode identificar uma pessoa. O treino ML desta entrega usa dados sintéticos. Não foi identificado broker MQTT nem coleta contínua de localização ou telemetria real; se esses recursos forem adicionados, o inventário, finalidade, acesso, retenção e compartilhamento precisam ser revistos antes da coleta.
+
+| Princípio ou obrigação | Controle técnico observado | Decisão necessária |
+|---|---|---|
+| Finalidade, adequação e necessidade | Escopo de leitura/escrita por papel e unidade; logs minimizados; variáveis sintéticas no treino. | Controlador aprova finalidade, base legal por fluxo e dados mínimos. Consentimento não é presumido como base universal. |
+| Transparência, livre acesso e direitos | Módulos de privacidade e fluxos de atendimento do produto. | Controlador valida aviso, duração, canal, consulta, correção e eliminação quando aplicável. |
+| Segurança e prevenção | Autenticação, autorização, redação de logs/outbox e backup cifrado local. | Operações comprova cofre, restore, acesso aos logs, retenção e contrato de fornecedor. |
+| Qualidade, não discriminação e score | Score acadêmico é apoio analítico com dados sintéticos. | Antes de dados reais, revisar qualidade, vieses, decisão humana, explicação/contestação e necessidade de RIPD. |
+| Prestação de contas | Audit log, request ID, este mapa de riscos e workflow. | Controlador/encarregado aprova inventário, contratos, retenção e registros de decisão. |
+
+A equipe técnica não determina base legal nem declara conformidade jurídica. A LGPD exige medidas técnicas e administrativas de segurança; a ANPD orienta comunicação pelo controlador à Autoridade e aos titulares em até três dias úteis para incidente com risco ou dano relevante, ressalvadas regras específicas, e registro de incidentes por pelo menos cinco anos. O fluxo de resposta da Atividade 3 deve ser operacionalizado pelo controlador e encarregado.
+
+### Plano contínuo: rotina, dono e evidência
+
+| Quando | Atividade e critério de aceitação | Responsável funcional | Evidência a guardar | Estado |
+|---|---|---|---|---|
+| Cada push/PR | Build/typecheck, testes API/mobile, self-test de backup, SCA Node/Python, Semgrep e Gitleaks; corrigir finding ou registrar exceção com dono e prazo antes de release. | Mantenedor e revisor. | URL do CI, SHA, achado, decisão e resultado após correção. | **Workflow e quatro checks obrigatórios configurados em main;** revisão por pares não é obrigatória na regra atual. |
+| Semanal | Revisar Dependabot e a execução agendada; priorizar vulnerabilidade alta/crítica e registrar prazo. | Mantenedor. | PR/issue, pacote, severidade, decisão e CI verde. | **Agendamento configurado;** triagem humana depende do responsável. |
+| Mensal | Conferir contas ativas, papéis, escopo das concessionárias e acesso ao repositório/segredos; revogar excesso. | Dono do ambiente e API. | Matriz datada, aprovador e alterações. | **Planejado;** sem registro periódico nesta entrega. |
+| Antes de cada release | Revisar matriz rota × papel, abuso de fluxo, OpenAPI/hosts, mudanças de configuração, segredo, backup, smoke test e rollback. | Responsável de release e revisor. | Checklist, CI, logs sanitizados e aprovação. | **Planejado;** não há CD/deploy. |
+| Diário em produção; restore mensal isolado | Fazer backup cifrado com chave em cofre/cópia externa, verificar integridade e restaurar em banco descartável. Definir RPO/RTO com o dono do serviço. | Operações/DBA. | ID/hash, data, operador, teste de restore e descarte seguro. | **Ferramenta e self-test existem;** agenda, cofre, cópia externa e restore real pendentes. |
+| Mensal e após incidente | Rever logs, alertas, tempos de detecção/contenção e executar simulado de resposta. | Operações e controlador/encarregado para dados pessoais. | Ata, métricas, decisão e ação corretiva. | **Fluxo documentado;** dashboards/alertas reais e simulado pendentes. |
+| Nova finalidade, fornecedor, IoT ou ML com dados reais | Atualizar inventário e fluxo de dados; aprovar finalidade/base legal, retenção, compartilhamento, aviso e eventual RIPD. | Controlador/encarregado com equipe técnica. | Aprovação e versão do registro. | **Depende de governança externa.** |
+
+As frequências de operação são propostas do plano, não tarefas já executadas. RPO/RTO e retenção devem ser aprovados conforme o ambiente real.
+
+### Checklist consolidado da Atividade 4
+
+| Exigência da rubrica | Estado | Evidência / limite |
+|---|---|---|
+| Revisão final STRIDE + DevSecOps | **Documentada** | Registro R1–R10 com cenário, controle, risco residual, dono e verificação. |
+| OWASP ASVS | **Mapeado por domínio** | Matriz acima; revisão integral de requisitos e certificação não declaradas. |
+| OWASP API Top 10 | **Mapeado** | Dez categorias com controle observado e ação restante. |
+| OWASP Mobile Top 10 | **Mapeado** | Dez categorias e limite do APK debug identificados. |
+| LGPD, dados, telemetria e localização | **Mapa técnico documentado** | Inventário e decisões de controlador/encarregado para dados reais ainda pendentes. |
+| Revisão de dependências | **Automatizada semanalmente** | Dependabot e SCA Node/Python no CI; triagem futura a registrar. |
+| Testes de segurança | **Automatizados em parte** | CI com testes API/mobile e scanners; ampliar BOLA/BFLA e abuso em banco isolado. |
+| Auditoria de permissões | **Rotina definida** | Matriz mensal proposta; primeira execução com contas reais pendente. |
+| Backup e recuperação | **Ferramenta entregue, operação pendente** | AES-256-GCM e self-test; falta restore real, cofre e cópia externa. |
+| Documento final e checklist | **Entregues neste relatório** | Atividades 1–4 e esta checklist compõem um único documento versionado. |
+
+### Evidências e fontes oficiais
+
+- [CI Security and quality, execução 36368560969](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36368560969), commit 6e8a418: build, testes e scanners aprovados. Essa execução não comprova operação de produção.
+- [OWASP ASVS 5.0.0](https://owasp.org/projects/asvs), [OWASP API Security Top 10 2023](https://api-security.owasp.org/editions/2023/en/0x11-t10/) e [OWASP Mobile Top 10 2024](https://owasp.org/projects/mobile-top-10).
+- [Lei nº 13.709/2018, texto compilado](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm) e [orientação ANPD sobre incidentes](https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/comunicado-de-incidente-de-seguranca-cis).
+- Evidências internas: .github/workflows/security.yml, .github/dependabot.yml, docs/security-lgpd.md, docs/operations-security.md, apps/api/src/auth, apps/api/src/common/access-scope.ts, apps/mobile/src/session.ts e scripts/secure-backup.cjs.
+
+**Conclusão da Atividade 4:** revisão de riscos, mapeamento ASVS/API/Mobile/LGPD, plano contínuo e checklist estão consolidados neste documento e vinculados a controles e evidências do projeto. As lacunas operacionais estão identificadas com dono e critério de conclusão. O professor define a nota; este relatório não declara conformidade jurídica nem operação real ainda não comprovada.

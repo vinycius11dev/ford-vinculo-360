@@ -44,6 +44,9 @@ Visão geral
 - [Arquitetura orientada a serviços: diagramas, fronteiras, autenticação, REST e pendências](docs/sprint-3-architecture.md)
 - [Cibersegurança: controles, pipeline DevSecOps, STRIDE, LGPD e resposta a incidentes](docs/sprint-3-cybersecurity.md)
 - [Inteligência Artificial e Machine Learning: problema, dados, comparação, métricas e conclusão](docs/ia-machine-learning-sprint3.md)
+- [Baixar pacote de evidências de IA/ML da Sprint 3](https://github.com/vinycius11dev/ford-vinculo-360/releases/tag/sprint3-ml-evidence-2026-09-27)
+- [Mobile: código, instruções e telas](apps/mobile/README.md)
+- [Baixar APK Android de demonstração da Sprint 3](https://github.com/vinycius11dev/ford-vinculo-360/releases/tag/sprint3-mobile-demo-2026-09-27)
 - [Visão resumida da arquitetura](docs/architecture.md)
 
 > 📸 **Demonstração Visual Completa**: Veja todas as 24 telas capturadas da plataforma em alta resolução no [Catálogo Visual de Telas](docs/galeria-telas.md).

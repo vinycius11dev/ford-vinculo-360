@@ -405,9 +405,9 @@ Acesse: **`http://127.0.0.1:8081`** no navegador. O app simula o container de sm
 
 ---
 
-## 📦 6. Como Gerar o Arquivo APK Final (EAS Build)
+## 📦 6. APK disponível e como gerar outro build
 
-Conforme solicitado no edital da Sprint 3, o projeto está completamente preparado para gerar o executável final **`.apk` para Android**.
+O [APK Android de demonstração da Sprint 3](https://github.com/vinycius11dev/ford-vinculo-360/releases/tag/sprint3-mobile-demo-2026-09-27) está publicado como asset permanente do GitHub Release. Ele foi compilado com sucesso no [GitHub Actions](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36358576222) e usa a API local do emulador em `http://10.0.2.2:3000/api/v1`. Para ver fluxos com dados, execute a API na máquina que hospeda o emulador. Este build debug não aponta para uma API pública; o uso em celular físico exige novo build com endpoint HTTPS acessível.
 
 ### Opção A: Script Automatizado (Recomendado)
 Criamos um script na raiz que valida os testes de contrato e sessão e dispara o build do APK:
@@ -439,13 +439,13 @@ O arquivo `.apk` será gerado localmente na pasta `apps/mobile`.
 
 ## 📲 7. Como Instalar o APK Gerado
 
-* **Em Dispositivo Físico Android:**
-  1. Envie ou baixe o arquivo `ford-vinculo-360.apk` no smartphone.
+* **Em Dispositivo Físico Android (somente após novo build com API acessível):**
+  1. Envie ou baixe o APK gerado com a URL HTTPS acessível no smartphone.
   2. Toque no arquivo e autorize a instalação de fontes desconhecidas no Android.
   3. Abra o aplicativo e faça login com a conta de demonstração.
 * **Em Emulador Android:**
   1. Abra o emulador.
-  2. Arraste o arquivo `.apk` para a janela do emulador (ou rode `adb install ford-vinculo-360.apk`).
+  2. Arraste `Ford-Vinculo-360-demo.apk` para a janela do emulador (ou rode `adb install Ford-Vinculo-360-demo.apk`).
 
 ---
 
@@ -485,12 +485,12 @@ node --test scripts/mobile-session.test.cjs scripts/mobile-contract.test.cjs
 
 | Requisito do Edital (Slide 13) | Como foi atendido | Evidência no Repositório |
 | :--- | :--- | :--- |
-| **Entregar versão final publicável no formato APK** | `app.json` e `eas.json` configurados com perfil preview/production gerando APK direto via EAS Build | [eas.json](file:///c:/wamp64/www/ford+/apps/mobile/eas.json) |
-| **Todos os fluxos do desafio Ford funcionando sem erros** | Garagem, Prontuário por VIN, Agendamento, Fidelidade/Vouchers e Alertas implementados e testados | [App.tsx](file:///c:/wamp64/www/ford+/apps/mobile/App.tsx) |
-| **Identidade visual consolidada** | Paleta corporativa Ford, tipografia hierárquica, ícones Lucide e imagens de estúdio de alta fidelidade | [App.tsx L62-L100](file:///c:/wamp64/www/ford+/apps/mobile/App.tsx#L62-L100) |
-| **Apresentar o app como produto finalizado com README completo** | Documentação detalhada com arquitetura, demonstração visual em wireframe de todas as telas e credenciais demo | [README.md](file:///c:/wamp64/www/ford+/apps/mobile/README.md) |
-| **Demonstração visual de todas as telas** | Wireframes e mapas de componentes das 7 telas e modais documentados na Seção 4 deste documento | Seção 4 do README |
-| **Build final APK via Expo EAS Build ou equivalente** | Scripts configurados e script de automação criado | [scripts/build-mobile-apk.ps1](file:///c:/wamp64/www/ford+/scripts/build-mobile-apk.ps1) |
+| **APK Android para instalação** | APK debug de demonstração publicado no GitHub Release; o build usa a API local do emulador. Um release para celular exige URL HTTPS acessível e novo build. | [Baixar APK](https://github.com/vinycius11dev/ford-vinculo-360/releases/tag/sprint3-mobile-demo-2026-09-27) e [configuração EAS](eas.json) |
+| **Fluxos do desafio Ford** | Garagem, veículo/VIN, agendamento, fidelidade/vouchers e alertas estão no app. Testes de sessão/contrato passam no CI; fluxo ponta a ponta em aparelho não foi comprovado. | [Código do app](App.tsx) e [CI](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36368560969) |
+| **Identidade visual consolidada** | Componentes, paleta e tipografia são compartilhados nas telas. | [Código do app](App.tsx) e [galeria](../../docs/galeria-telas.md) |
+| **README completo** | Arquitetura, comandos, requisitos de API, instalação e limitações do APK estão descritos aqui. | Este README |
+| **Demonstração visual de todas as telas** | Dezoito capturas das telas mobile estão na galeria do repositório. | [Galeria de telas](../../docs/galeria-telas.md) |
+| **Build APK via Expo/Gradle equivalente** | GitHub Actions executou Expo prebuild e Gradle assembleDebug; o perfil EAS continua disponível para outro build. | [Workflow e resultado](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36358576222), [script EAS](../../scripts/build-mobile-apk.ps1) |
 
 ---
 *Ford Vínculo 360 Mobile — FIAP 2026. Todos os direitos reservados.*
