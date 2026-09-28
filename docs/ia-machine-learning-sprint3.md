@@ -1,5 +1,7 @@
 # Sprint 3 — Inteligência Artificial e Machine Learning
 
+**Pacote permanente no GitHub:** [ZIP com código, dados sintéticos, modelo, métricas e relatório](https://github.com/vinycius11dev/ford-vinculo-360/releases/tag/sprint3-ml-evidence-2026-09-27). A [execução do workflow de treino](https://github.com/vinycius11dev/ford-vinculo-360/actions/runs/36368560911) mostra a reprodução automática.
+
 ## Resumo da solução
 
 O projeto aborda o risco de evasão na rede Ford de pós-venda. O objetivo do piloto é estimar se um veículo ficará sem retornar à rede autorizada nos 180 dias seguintes à observação, para ajudar a equipe a priorizar contato de retenção. O problema foi formulado como **classificação binária supervisionada**, com o alvo `churned_within_180d`.

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ford Vínculo 360 — Painel de segurança (demonstração)</title>
+  <style>
+    :root { color-scheme: dark; font-family: "Segoe UI", Arial, sans-serif; background:#08111f; color:#eaf2ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:1180px; background:radial-gradient(circle at 12% 0%,#163d69 0,#0b1a2b 25%,#08111f 60%); }
+    .wrap { max-width:1440px; margin:0 auto; padding:28px 34px 34px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:22px; }
+    .brand { display:flex; align-items:center; gap:16px; }
+    .mark { width:48px; height:48px; border-radius:15px; display:grid; place-items:center; background:#2381df; color:white; font-weight:800; font-size:24px; box-shadow:0 8px 30px #0b64bb66; }
+    h1 { margin:0; font-size:27px; line-height:1.1; }
+    .sub { margin-top:5px; color:#9fb3c8; font-size:13px; }
+    .chip { padding:9px 13px; border:1px solid #394f65; border-radius:999px; color:#cae5ff; font-size:12px; background:#102339; white-space:nowrap; }
+    .banner { display:flex; align-items:center; justify-content:space-between; background:#24320f; border:1px solid #667c29; border-radius:12px; color:#e4f5ac; padding:11px 16px; margin-bottom:18px; font-weight:700; letter-spacing:.04em; font-size:12px; }
+    .banner span:last-child { font-weight:400; letter-spacing:0; color:#c7d69f; }
+    .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:16px; }
+    .card, .panel { background:#101f30; border:1px solid #254058; border-radius:15px; box-shadow:0 10px 28px #0004; }
+    .card { padding:18px 20px 16px; min-height:142px; }
+    .label { color:#a7bbcd; font-size:12px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
+    .value { font-size:39px; font-weight:750; line-height:1.1; margin:11px 0 7px; }
+    .value.warn { color:#ffc36e; } .value.danger { color:#ff8395; } .value.good { color:#8fe7bb; }
+    .note { color:#9fb3c8; font-size:12px; }
+    .kpi-foot { display:flex; justify-content:space-between; align-items:center; }
+    .pill { padding:4px 8px; border-radius:7px; font-size:10px; font-weight:700; }
+    .pill.red { background:#5b2332; color:#ffb7c2; } .pill.orange { background:#5c401b; color:#ffe0a8; } .pill.green { background:#164c39; color:#a3f1cc; }
+    .grid { display:grid; grid-template-columns:2.08fr 1fr; gap:16px; margin-bottom:16px; }
+    .panel { padding:19px 21px; }
+    .panel h2 { margin:0 0 5px; font-size:17px; }
+    .panel p { margin:0; color:#91a9bf; font-size:12px; }
+    .chart { height:205px; margin-top:16px; border-left:1px solid #39526a; border-bottom:1px solid #39526a; position:relative; display:flex; align-items:end; gap:13px; padding:0 14px 0 16px; }
+    .gridline { position:absolute; width:calc(100% - 16px); left:16px; height:1px; background:#294155; }
+    .gridline.g1 { bottom:25%; } .gridline.g2 { bottom:50%; } .gridline.g3 { bottom:75%; }
+    .bar-group { display:flex; flex:1; align-items:end; gap:2px; height:100%; position:relative; z-index:1; }
+    .bar { flex:1; border-radius:4px 4px 0 0; min-height:3px; }
+    .bar.ok { background:#3c9dd8; } .bar.err { background:#f27b8d; }
+    .axis { display:flex; justify-content:space-between; margin:8px 0 0 16px; color:#829ab0; font-size:11px; }
+    .legend { display:flex; gap:17px; margin-top:16px; color:#acc0d2; font-size:11px; }
+    .dot { display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
+    .state { display:grid; grid-template-columns:1fr auto; gap:9px; padding:11px 0; border-bottom:1px solid #294056; font-size:12px; }
+    .state:last-child { border-bottom:0; }
+    .state b { font-weight:600; } .state span { color:#adc0d2; }
+    .alert { margin-top:13px; border:1px solid #75495a; background:#382533; border-radius:10px; padding:11px 12px; color:#ffd4db; font-size:12px; line-height:1.35; }
+    .bottom { display:grid; grid-template-columns:1.32fr 1fr; gap:16px; }
+    table { border-collapse:collapse; width:100%; margin-top:14px; font-size:11px; }
+    th { text-align:left; color:#8099b0; text-transform:uppercase; letter-spacing:.07em; font-size:10px; padding:0 7px 9px 0; }
+    td { border-top:1px solid #294056; padding:9px 7px 9px 0; color:#c8d8e8; }
+    .code { font-family:Consolas, monospace; color:#9ad7ff; }
+    .status { color:#ffb7c2; font-weight:700; }
+    .steps { display:flex; gap:8px; margin-top:18px; }
+    .step { flex:1; border:1px solid #37526a; border-radius:9px; padding:10px 7px; text-align:center; color:#c8d9e8; font-size:11px; }
+    .step strong { display:block; color:#6ab9eb; font-size:15px; margin-bottom:5px; }
+    footer { display:flex; justify-content:space-between; margin-top:15px; color:#6f8ba4; font-size:11px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><div class="mark">F</div><div><h1>Segurança e observabilidade</h1><div class="sub">Ford Vínculo 360 · API / autenticação / ML / backup</div></div></div>
+      <div class="chip">Painel demonstrativo · janela sintética de 5 min</div>
+    </header>
+    <div class="banner"><span>DADOS SINTÉTICOS DE DEMONSTRAÇÃO — NÃO HÁ COLETOR DE PRODUÇÃO</span><span>28/09/2026 · referência da Atividade 3</span></div>
+    <div class="kpis">
+      <div class="card"><div class="label">Requisições API</div><div class="value">1.284</div><div class="kpi-foot"><div class="note">Últimos 5 minutos</div><span class="pill green">NORMAL</span></div></div>
+      <div class="card"><div class="label">Erros 5xx</div><div class="value danger">5,8%</div><div class="kpi-foot"><div class="note">Meta proposta: &lt; 5%</div><span class="pill red">ALERTA</span></div></div>
+      <div class="card"><div class="label">Latência p95</div><div class="value warn">842 <small style="font-size:16px">ms</small></div><div class="kpi-foot"><div class="note">Meta proposta: &lt; 800 ms</div><span class="pill orange">ATENÇÃO</span></div></div>
+      <div class="card"><div class="label">Auth 401 / 429</div><div class="value warn">48</div><div class="kpi-foot"><div class="note">Revisar baseline de login</div><span class="pill orange">TRIAGEM</span></div></div>
+    </div>
+    <div class="grid">
+      <section class="panel">
+        <h2>Tráfego e erros da API</h2><p>Visualização ilustrativa de métricas agregadas a partir do formato de log JSON do projeto.</p>
+        <div class="chart">
+          <div class="gridline g1"></div><div class="gridline g2"></div><div class="gridline g3"></div>
+          <div class="bar-group"><div class="bar ok" style="height:45%"></div><div class="bar err" style="height:9%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:58%"></div><div class="bar err" style="height:10%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:54%"></div><div class="bar err" style="height:8%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:70%"></div><div class="bar err" style="height:12%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:60%"></div><div class="bar err" style="height:13%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:77%"></div><div class="bar err" style="height:16%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:73%"></div><div class="bar err" style="height:18%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:83%"></div><div class="bar err" style="height:19%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:71%"></div><div class="bar err" style="height:14%"></div></div>
+          <div class="bar-group"><div class="bar ok" style="height:64%"></div><div class="bar err" style="height:12%"></div></div>
+        </div>
+        <div class="axis"><span>00:00</span><span>01:00</span><span>02:00</span><span>03:00</span><span>04:00</span><span>05:00</span></div>
+        <div class="legend"><span><i class="dot" style="background:#3c9dd8"></i>Requisições</span><span><i class="dot" style="background:#f27b8d"></i>Erros 5xx</span></div>
+      </section>
+      <section class="panel">
+        <h2>Estado dos serviços</h2><p>Checks e sinais a configurar no ambiente operacional.</p>
+        <div class="state"><b>API e autenticação</b><span>401/429 em triagem</span></div>
+        <div class="state"><b>Serviço ML</b><span>1 timeout simulado</span></div>
+        <div class="state"><b>Mensageria</b><span>1 falha simulada</span></div>
+        <div class="state"><b>Backup cifrado</b><span>self-test CI aprovado</span></div>
+        <div class="alert"><strong>Alerta ilustrativo:</strong> 5xx acima de 5% por 5 min. Registrar request IDs, verificar release e acionar responsável antes de contenção.</div>
+      </section>
+    </div>
+    <div class="bottom">
+      <section class="panel">
+        <h2>Eventos sanitizados</h2><p>Amostra sintética sem CPF, VIN, e-mail, token, corpo nem query string.</p>
+        <table>
+          <thead><tr><th>Evento</th><th>Rota / ação</th><th>Status</th><th>Request ID</th></tr></thead>
+          <tbody>
+            <tr><td class="code">http.request</td><td>POST /api/v1/auth/login</td><td>401</td><td class="code">71c663e9…</td></tr>
+            <tr><td class="code">http.request</td><td>POST /api/v1/auth/password-reset/request</td><td>429</td><td class="code">2ed00d74…</td></tr>
+            <tr><td class="code">message.sensitive_delivery_failed</td><td>convite/reset</td><td class="status">erro</td><td class="code">redigido</td></tr>
+            <tr><td class="code">http.request</td><td>GET /api/v1/vehicles</td><td>503</td><td class="code">9fd719c2…</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="panel">
+        <h2>Resposta a incidentes</h2><p>Fluxo proposto para a equipe responsável, com evidência preservada.</p>
+        <div class="steps"><div class="step"><strong>1</strong>Detectar</div><div class="step"><strong>2</strong>Analisar</div><div class="step"><strong>3</strong>Conter</div><div class="step"><strong>4</strong>Recuperar</div></div>
+        <div class="alert" style="background:#183446;border-color:#386f8b;color:#d0efff;margin-top:18px"><strong>Registro:</strong> hora, responsável, request ID, impacto, decisão e evidências de correção.</div>
+      </section>
+    </div>
+    <footer><span>Fonte: cenários sintéticos documentados em docs/sprint-3-cybersecurity.md</span><span>Protótipo visual · sem ligação com produção</span></footer>
+  </div>
+</body>
+</html>
