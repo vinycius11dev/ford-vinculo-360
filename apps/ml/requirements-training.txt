@@ -1,0 +1,11 @@
+# Exact Python 3.12 environment used by the synthetic training workflow.
+joblib==1.6.0
+numpy==2.5.3
+pandas==2.3.3
+python-dateutil==2.9.0.post0
+pytz==2026.4
+scikit-learn==1.9.1
+scipy==1.18.1
+six==1.17.0
+threadpoolctl==3.7.0
+tzdata==2026.4

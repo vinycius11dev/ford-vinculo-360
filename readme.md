@@ -43,6 +43,7 @@ Visão geral
 
 - [Arquitetura orientada a serviços: diagramas, fronteiras, autenticação, REST e pendências](docs/sprint-3-architecture.md)
 - [Cibersegurança: controles, pipeline DevSecOps, STRIDE, LGPD e resposta a incidentes](docs/sprint-3-cybersecurity.md)
+- [Inteligência Artificial e Machine Learning: problema, dados, comparação, métricas e conclusão](docs/ia-machine-learning-sprint3.md)
 - [Visão resumida da arquitetura](docs/architecture.md)
 
 > 📸 **Demonstração Visual Completa**: Veja todas as 24 telas capturadas da plataforma em alta resolução no [Catálogo Visual de Telas](docs/galeria-telas.md).
@@ -272,25 +273,21 @@ O painel web disponibiliza:
 
 Inteligência Artificial / Machine Learning
 
-Um dos principais diferenciais será utilizar os dados históricos para identificar antecipadamente clientes que estão se afastando da rede Ford.
+O piloto acadêmico demonstra como priorizar contato de retenção a partir de sinais de pós-venda. O modelo de Machine Learning (`churn-risk-pilot-v2`) foi treinado com dados sintéticos; seus resultados não representam validação em clientes reais.
 
-O sistema poderá analisar informações como:
+As quatro variáveis usadas pelo modelo são:
 
-Tempo desde a última revisão
-Quilometragem
-Idade do veículo
-Quantidade de serviços realizados
-Tempo desde a compra
-Utilização de vouchers
-Frequência na concessionária
-Valor gasto em pós-venda
+- Dias desde o último serviço.
+- Quantidade de serviços nos últimos 24 meses.
+- Idade do veículo.
+- Quantidade de vouchers utilizados.
 
-Com esses dados, o modelo de Machine Learning (`churn-risk-pilot-v1`) calcula em tempo real a probabilidade de evasão:
+O serviço FastAPI calcula a probabilidade quando solicitado. Quilometragem, data de compra, frequência na concessionária e valor gasto são ideias para dados futuros; não fazem parte do modelo deste piloto.
 
 ![Previsão de Evasão por Machine Learning](docs/screenshots/20_web_risco_evasao_ml.png)
 *Tela do Desafio 02: modelo treinado analisando 19 veículos da carteira e ranqueando os clientes com maior urgência de retorno.*
 
-Por exemplo:
+Exemplo demonstrativo da interface:
 
 Cliente: Carlos
 

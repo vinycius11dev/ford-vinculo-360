@@ -115,8 +115,10 @@
 1. Integrações reais com DMS/CRM/telemetria e provedores de SMS e push
    (o e-mail já aceita um provedor SMTP real via variáveis de ambiente).
 2. Segmentação automática e métricas reais de entrega/conversão de campanhas.
-3. Treinar e versionar um modelo de ML real (hoje `apps/ml` é um baseline
-   heurístico transparente) e adicionar monitoramento/explicabilidade.
+3. Validar o modelo de risco de evasão com dados históricos autorizados e
+   representativos. O pipeline acadêmico atual treina e avalia modelos usando
+   dados sintéticos; antes da operação real, adicionar monitoramento,
+   calibração, avaliação de viés e explicabilidade por versão.
 4. LGPD: política automatizada de retenção e execução de exclusão/anônimização.
 5. Ampliar testes unitários, integração e E2E; implantar CI/CD, observabilidade,
    alertas e rollback de produção.

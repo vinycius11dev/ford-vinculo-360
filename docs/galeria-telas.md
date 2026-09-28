@@ -249,9 +249,9 @@ Este documento apresenta todas as telas do **Ford App (aplicativo do proprietár
 
 - **O que é**: Módulo de Machine Learning que antecipa o afastamento de clientes antes que eles deixem a marca.
 - **Funcionalidades**:
-  - Modelo preditivo treinado (`churn-risk-pilot-v1`) calculando a probabilidade de evasão em percentual.
-  - Fatores analisados: tempo sem revisão, quilometragem, histórico de serviços e utilização de vouchers.
-  - Ação recomendada automática (ex.: disparo de voucher de revisão em 1 clique).
+  - Modelo preditivo do piloto (`churn-risk-pilot-v2`) calculando a probabilidade de evasão em percentual com dados sintéticos.
+  - Fatores do modelo: tempo sem revisão, quantidade de serviços nos últimos 24 meses, idade do veículo e utilização de vouchers.
+  - Sugestões de retenção podem originar campanhas depois de uma revisão humana auditada; o modelo não dispara ofertas sozinho.
 
 ---
 

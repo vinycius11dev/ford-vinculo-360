@@ -19,7 +19,7 @@ O `Vehicle.vin` é único e permanente. Mudanças de propriedade criam registros
 - API e esquema MySQL para veículos, vínculos, serviços, fidelidade, vouchers, campanhas e agendamentos.
 - Painel web demonstrando os indicadores de pós-venda.
 - App móvel inicial para a visão do proprietário.
-- Serviço Python com uma previsão explicável de risco de evasão como baseline substituível por modelo treinado.
+- Serviço Python para pontuação de risco de evasão: carrega o artefato de ML treinado quando disponível e identifica o baseline heurístico como fallback. O modelo acadêmico atual foi treinado com dados sintéticos.
 
 ## Fronteiras de acesso
 
